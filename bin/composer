@@ -1,0 +1,2 @@
+#!/bin/bash
+php /home/ahmadsanny02/Workspace/03_web/projects/point-of-sales/composer.phar "$@"
