@@ -85,4 +85,12 @@ class ProductController extends Controller
         $product->delete();
         return redirect()->route('products.index')->with('message', 'Product deleted successfully');
     }
+
+    public function show(Product $product)
+    {
+        $product->load('category');
+        return Inertia::render('Products/Show', [
+            'product' => $product
+        ]);
+    }
 }
