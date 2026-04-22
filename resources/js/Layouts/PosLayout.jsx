@@ -8,28 +8,28 @@ export default function PosLayout({ children }) {
     const [isDark, toggleTheme] = useDarkMode();
 
     return (
-        <div className="min-h-screen bg-slate-100 dark:bg-slate-900 flex flex-col overflow-hidden h-screen transition-colors duration-200">
+        <div className="flex overflow-hidden flex-col h-screen min-h-screen transition-colors duration-200 bg-slate-100 dark:bg-slate-900">
             {/* Top Navigation / Header for Kiosk */}
-            <header className="flex h-16 shrink-0 items-center justify-between bg-white dark:bg-slate-800 px-4 shadow-sm z-30 relative border-b border-slate-200 dark:border-slate-700 transition-colors duration-200">
-                <div className="flex items-center gap-4">
-                    <Link href="/" className="flex items-center gap-2">
-                        <ApplicationLogo className="block h-8 w-auto fill-current text-blue-600 dark:text-blue-500" />
-                        <span className="font-bold text-xl text-slate-800 dark:text-white tracking-tight transition-colors">KASIR POS</span>
+            <header className="flex relative z-30 justify-between items-center px-4 h-16 bg-white border-b shadow-sm transition-colors duration-200 shrink-0 dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+                <div className="flex gap-4 items-center">
+                    <Link href="/" className="flex gap-2 items-center">
+                        <ApplicationLogo className="block w-auto h-8 text-blue-600 fill-current dark:text-blue-500" />
+                        <span className="text-xl font-bold tracking-tight transition-colors text-slate-800 dark:text-white">KASIR POS</span>
                     </Link>
                     
                     {user.role === 'admin' && (
-                        <div className="hidden md:flex ml-8 space-x-2">
-                            <Link href={route('dashboard')} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/50 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        <div className="hidden ml-8 space-x-2 md:flex">
+                            <Link href={route('dashboard')} className="px-4 py-2 text-sm font-medium rounded-md transition-colors text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-700">
                                 Kembali ke Admin Dashboard
                             </Link>
                         </div>
                     )}
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex gap-4 items-center">
                     <button
                         onClick={toggleTheme}
-                        className="p-2 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                        className="p-2 rounded-full transition-colors bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600"
                         title="Toggle Dark Mode"
                     >
                         {isDark ? (
@@ -39,15 +39,15 @@ export default function PosLayout({ children }) {
                         )}
                     </button>
 
-                    <div className="text-right hidden sm:block">
-                        <div className="text-sm font-bold text-slate-800 dark:text-slate-100 transition-colors">{user.name}</div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400 capitalize transition-colors">Role: {user.role}</div>
+                    <div className="hidden text-right sm:block">
+                        <div className="text-sm font-bold transition-colors text-slate-800 dark:text-slate-100">{user.name}</div>
+                        <div className="text-xs capitalize transition-colors text-slate-500 dark:text-slate-400">Role: {user.role}</div>
                     </div>
                     
                     <Dropdown>
                         <Dropdown.Trigger>
-                            <button className="flex items-center justify-center h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors focus:outline-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-600 dark:text-slate-300" viewBox="0 0 20 20" fill="currentColor">
+                            <button className="flex justify-center items-center w-10 h-10 rounded-full transition-colors bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 focus:outline-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-slate-600 dark:text-slate-300" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                                 </svg>
                             </button>
@@ -61,7 +61,7 @@ export default function PosLayout({ children }) {
             </header>
 
             {/* Main Content Area - Full screen minus header */}
-            <main className="flex-1 overflow-hidden">
+            <main className="overflow-hidden flex-1">
                 {children}
             </main>
         </div>
