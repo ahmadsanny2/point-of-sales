@@ -1,11 +1,24 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import dayjs from 'dayjs';
+import { useRef } from 'react';
+import { useReactToPrint } from 'react-to-print';
+import Receipt from '@/Components/Receipt';
 
 export default function Show({ transaction }) {
+    const componentRef = useRef();
+    
+    const handlePrint = useReactToPrint({
+        contentRef: componentRef,
+        documentTitle: `Invoice-${transaction.invoice_number}`,
+    });
+
     return (
         <AuthenticatedLayout header={`Detail Transaksi - ${transaction.invoice_number}`}>
             <Head title={`Invoice ${transaction.invoice_number}`} />
+
+            {/* Hidden Receipt Component for Printing */}
+            <Receipt ref={componentRef} transaction={transaction} />
 
             <div className="max-w-3xl mx-auto">
                 <div className="mb-4">
@@ -98,7 +111,7 @@ export default function Show({ transaction }) {
 
                 <div className="mt-6 flex justify-end">
                     <button 
-                        onClick={() => window.print()}
+                        onClick={handlePrint}
                         className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium py-2 px-6 rounded-md shadow-sm transition-colors flex items-center gap-2"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
@@ -109,3 +122,4 @@ export default function Show({ transaction }) {
         </AuthenticatedLayout>
     );
 }
+
