@@ -14,22 +14,22 @@ export default function AuthenticatedLayout({ header, children }) {
         useState(false);
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex transition-colors duration-200">
+        <div className="flex min-h-screen transition-colors duration-200 bg-slate-50 dark:bg-slate-900">
 
             {user.role === "admin" && (
                 <>
                     {/* Sidebar Desktop */}
-                    <aside className="hidden w-64 bg-slate-900 flex-col sm:flex transition-all duration-300 shadow-xl">
-                        <div className="flex h-16 shrink-0 items-center justify-center border-b border-slate-800">
-                            <Link href="/" className="flex items-center gap-2">
-                                <ApplicationLogo className="block h-9 w-auto fill-current text-white" />
-                                <span className="text-white font-bold text-xl tracking-wider">
+                    <aside className="hidden flex-col w-64 shadow-xl transition-all duration-300 bg-slate-900 sm:flex">
+                        <div className="flex justify-center items-center h-16 border-b shrink-0 border-slate-800">
+                            <Link href="/" className="flex gap-2 items-center">
+                                <ApplicationLogo className="block w-auto h-9 text-white fill-current" />
+                                <span className="text-xl font-bold tracking-wider text-white">
                                     POS ADMIN
                                 </span>
                             </Link>
                         </div>
 
-                        <div className="flex flex-1 flex-col overflow-y-auto px-4 py-6">
+                        <div className="flex overflow-y-auto flex-col flex-1 px-4 py-6">
                             <nav className="flex-1 space-y-1.5 px-2">
                                 <Link
                                     href={route("dashboard")}
@@ -51,7 +51,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     Dashboard
                                 </Link>
 
-                                <div className="pt-5 pb-2 px-3">
+                                <div className="px-3 pt-5 pb-2">
                                     <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                                         Laporan
                                     </p>
@@ -76,7 +76,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     Riwayat Transaksi
                                 </Link>
 
-                                <div className="pt-5 pb-2 px-3">
+                                <div className="px-3 pt-5 pb-2">
                                     <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                                         Operasional
                                     </p>
@@ -101,7 +101,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     Buka Mesin Kasir
                                 </Link>
 
-                                <div className="pt-5 pb-2 px-3">
+                                <div className="px-3 pt-5 pb-2">
                                     <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                                         Data Master
                                     </p>
@@ -152,9 +152,9 @@ export default function AuthenticatedLayout({ header, children }) {
 
 
             {/* Main Content Area */}
-            <div className="flex flex-1 flex-col overflow-hidden">
+            <div className="flex overflow-hidden flex-col flex-1">
                 {/* Top Header */}
-                <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 sm:px-6 lg:px-8 shadow-sm z-10 transition-colors duration-200">
+                <header className="flex z-10 justify-between items-center px-4 h-16 bg-white border-b shadow-sm transition-colors duration-200 shrink-0 border-slate-200 dark:border-slate-700 dark:bg-slate-800 sm:px-6 lg:px-8">
                     {/* Mobile Menu Button */}
                     <div className="flex items-center sm:hidden">
                         <button
@@ -163,10 +163,10 @@ export default function AuthenticatedLayout({ header, children }) {
                                     (previousState) => !previousState,
                                 )
                             }
-                            className="inline-flex items-center justify-center rounded-md p-2 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-500 dark:hover:text-slate-300 focus:outline-none transition-colors"
+                            className="inline-flex justify-center items-center p-2 rounded-md transition-colors text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-500 dark:hover:text-slate-300 focus:outline-none"
                         >
                             <svg
-                                className="h-6 w-6"
+                                className="w-6 h-6"
                                 stroke="currentColor"
                                 fill="none"
                                 viewBox="0 0 24 24"
@@ -198,18 +198,18 @@ export default function AuthenticatedLayout({ header, children }) {
                     </div>
 
                     {/* Page Header (if any passed normally in top nav) */}
-                    <div className="hidden sm:flex flex-1 items-center">
-                        <h2 className="text-xl font-semibold leading-tight text-slate-800 dark:text-slate-100 transition-colors">
+                    <div className="hidden flex-1 items-center sm:flex">
+                        <h2 className="text-xl font-semibold leading-tight transition-colors text-slate-800 dark:text-slate-100">
                             {header}
                         </h2>
                     </div>
 
                     {/* Navbar Right */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex gap-2 items-center">
                         {/* Dark Mode Toggle */}
                         <button
                             onClick={toggleTheme}
-                            className="p-2 rounded-full bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                            className="p-2 rounded-full transition-colors bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600"
                             title="Toggle Dark Mode"
                         >
                             {isDark ? (
@@ -249,9 +249,9 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <span className="inline-flex rounded-md">
                                         <button
                                             type="button"
-                                            className="inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-medium leading-4 text-slate-600 dark:text-slate-300 transition hover:text-slate-800 dark:hover:text-slate-100 hover:shadow-md hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none"
+                                            className="inline-flex gap-2 items-center px-4 py-2 text-sm font-medium leading-4 bg-white rounded-full border transition border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:shadow-md hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none"
                                         >
-                                            <div className="h-6 w-6 rounded-full bg-slate-200 dark:bg-slate-600"></div>
+                                            <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-600"></div>
                                             {user.name} ({user.role})
                                             <svg
                                                 className="-me-0.5 ms-2 h-4 w-4"
@@ -292,7 +292,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         " sm:hidden bg-slate-900 border-b border-slate-800 text-white relative z-20 shadow-lg"
                     }
                 >
-                    <div className="space-y-1 pb-3 pt-2">
+                    <div className="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink
                             href={route("dashboard")}
                             active={route().current("dashboard")}
@@ -300,7 +300,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             Dashboard
                         </ResponsiveNavLink>
                     </div>
-                    <div className="border-t border-slate-800 pb-1 pt-4">
+                    <div className="pt-4 pb-1 border-t border-slate-800">
                         <div className="mt-3 space-y-1">
                             <ResponsiveNavLink href={route("profile.edit")}>
                                 Profile
@@ -316,9 +316,9 @@ export default function AuthenticatedLayout({ header, children }) {
                     </div>
                 </div>
 
-                <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
+                <main className="overflow-y-auto flex-1 p-4 transition-colors duration-200 sm:p-6 lg:p-8 bg-slate-50 dark:bg-slate-900">
                     {/* Header in mobile view if needed */}
-                    <div className="sm:hidden mb-4 pb-2 border-b border-slate-200 dark:border-slate-800">
+                    <div className="pb-2 mb-4 border-b sm:hidden border-slate-200 dark:border-slate-800">
                         <h2 className="text-xl font-semibold leading-tight text-slate-800 dark:text-slate-100">
                             {header}
                         </h2>
