@@ -29,23 +29,23 @@ export default function PaymentModal({
     const isTendered = Number(tenderedAmount) >= total;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="flex fixed inset-0 z-50 justify-center items-center p-4">
             {/* Backdrop */}
             <div
-                className="absolute inset-0 bg-slate-900/60 dark:bg-slate-900/80 backdrop-blur-sm"
+                className="absolute inset-0 backdrop-blur-sm bg-slate-900/60 dark:bg-slate-900/80"
                 onClick={onClose}
             />
 
             {/* Modal Box */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md z-10 overflow-hidden flex flex-col transform transition-all">
+            <div className="flex overflow-hidden z-10 flex-col w-full max-w-md bg-white rounded-2xl shadow-2xl transition-all transform dark:bg-slate-800">
                 {/* ── Header ── */}
-                <div className="p-6 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 flex justify-between items-center transition-colors">
+                <div className="flex justify-between items-center p-6 border-b transition-colors border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
                     <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">
                         Pembayaran {paymentMethod.toUpperCase()}
                     </h3>
                     <button
                         onClick={onClose}
-                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                        className="transition-colors text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                     >
                         <svg
                             className="w-6 h-6"
@@ -64,11 +64,11 @@ export default function PaymentModal({
                 </div>
 
                 {/* ── Body ── */}
-                <div className="p-6 flex-1 text-center">
-                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-1">
+                <div className="flex-1 p-6 text-center">
+                    <p className="mb-1 text-sm font-medium text-slate-500 dark:text-slate-400">
                         Total Tagihan
                     </p>
-                    <div className="text-4xl font-black text-blue-600 dark:text-blue-400 mb-6">
+                    <div className="mb-6 text-4xl font-black text-blue-600 dark:text-blue-400">
                         Rp {total.toLocaleString("id-ID")}
                     </div>
 
@@ -86,10 +86,10 @@ export default function PaymentModal({
                 </div>
 
                 {/* ── Footer Actions ── */}
-                <div className="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 flex gap-3 transition-colors">
+                <div className="flex gap-3 p-4 border-t transition-colors border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
                     <button
                         onClick={onClose}
-                        className="flex-1 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-95 transition-all"
+                        className="flex-1 py-3 font-bold bg-white rounded-lg border transition-all dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-95"
                     >
                         Batal
                     </button>
@@ -131,7 +131,7 @@ function CashPaymentSection({
     return (
         <div>
             {/* Cash Input */}
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 text-left mb-2">
+            <label className="block mb-2 text-sm font-semibold text-left text-slate-700 dark:text-slate-300">
                 Uang Diterima (Rp)
             </label>
             <input
@@ -139,7 +139,7 @@ function CashPaymentSection({
                 autoFocus
                 value={tenderedAmount}
                 onChange={(e) => setTenderedAmount(e.target.value)}
-                className="w-full text-2xl font-bold p-4 border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:border-blue-500 focus:ring-0 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100"
+                className="p-4 w-full text-2xl font-bold bg-white rounded-xl border-2 border-slate-200 dark:border-slate-600 focus:border-blue-500 focus:ring-0 dark:bg-slate-700 text-slate-800 dark:text-slate-100"
                 placeholder="0"
             />
 
@@ -149,7 +149,7 @@ function CashPaymentSection({
                     <button
                         key={label}
                         onClick={() => setTenderedAmount(value())}
-                        className="py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded font-medium text-slate-700 dark:text-slate-300 text-sm transition-colors"
+                        className="py-2 text-sm font-medium rounded transition-colors bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300"
                     >
                         {label}
                     </button>
@@ -160,11 +160,11 @@ function CashPaymentSection({
             <div
                 className={`mt-6 p-4 rounded-xl text-left ${
                     isTendered
-                        ? "bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/50"
-                        : "bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600"
+                        ? "bg-green-50 border border-green-100 dark:bg-green-900/20 dark:border-green-800/50"
+                        : "border bg-slate-50 dark:bg-slate-700/50 border-slate-100 dark:border-slate-600"
                 }`}
             >
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
+                <p className="mb-1 text-sm font-medium text-slate-500 dark:text-slate-400">
                     Uang Kembalian
                 </p>
                 <p
@@ -184,9 +184,9 @@ function CashPaymentSection({
 /** Instruksi pembayaran non-tunai (QRIS / Kartu). */
 function NonCashPaymentSection({ paymentMethod }) {
     return (
-        <div className="py-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-xl transition-colors">
+        <div className="py-8 bg-blue-50 rounded-xl border border-blue-100 transition-colors dark:bg-blue-900/20 dark:border-blue-800/50">
             <svg
-                className="w-16 h-16 text-blue-500 dark:text-blue-400 mx-auto mb-4"
+                className="mx-auto mb-4 w-16 h-16 text-blue-500 dark:text-blue-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -201,7 +201,7 @@ function NonCashPaymentSection({ paymentMethod }) {
             <p className="font-semibold text-blue-800 dark:text-blue-300">
                 Menunggu Pembayaran {paymentMethod.toUpperCase()}
             </p>
-            <p className="text-sm text-blue-600 dark:text-blue-400 mt-2 px-4">
+            <p className="px-4 mt-2 text-sm text-blue-600 dark:text-blue-400">
                 Pastikan pelanggan telah melakukan scan atau tapping sebelum
                 mengonfirmasi.
             </p>
