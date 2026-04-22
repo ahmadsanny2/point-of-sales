@@ -35,10 +35,10 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
         Route::get('/transactions/{id}', [TransactionController::class, 'show'])->name('transactions.show');
-        
+
         Route::resource('categories', CategoryController::class);
         Route::resource('products', ProductController::class);
     });
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
