@@ -19,7 +19,7 @@ export default function Index({ categories, products, midtrans_client_key, is_pr
         <PosLayout>
             <Head title="Kasir Kiosk" />
 
-            <div className="flex h-full w-full relative">
+            <div className="flex relative w-full h-full">
                 {/* ── Kiri: Grid Produk (70%) ── */}
                 <ProductGrid
                     categories={categories}
@@ -86,7 +86,7 @@ function MobileCartButton({ cartCount, showMobileCart, onOpen }) {
         >
             <button
                 onClick={onOpen}
-                className="bg-blue-600 dark:bg-blue-500 text-white p-4 rounded-full shadow-2xl flex items-center justify-center relative hover:bg-blue-700 dark:hover:bg-blue-600 active:scale-95 transition-all"
+                className="flex relative justify-center items-center p-4 text-white bg-blue-600 rounded-full shadow-2xl transition-all dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 active:scale-95"
             >
                 <svg
                     className="w-6 h-6"
@@ -102,7 +102,7 @@ function MobileCartButton({ cartCount, showMobileCart, onOpen }) {
                     />
                 </svg>
                 {cartCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800">
+                    <span className="flex absolute -top-2 -right-2 justify-center items-center w-6 h-6 text-xs font-bold text-white bg-red-500 rounded-full border-2 border-white dark:border-slate-800">
                         {cartCount}
                     </span>
                 )}
