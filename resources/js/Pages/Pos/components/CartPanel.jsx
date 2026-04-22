@@ -34,7 +34,7 @@ export default function CartPanel({
             {/* Mobile Backdrop */}
             {showMobileCart && (
                 <div
-                    className="lg:hidden fixed inset-0 bg-slate-900/50 z-30"
+                    className="fixed inset-0 z-30 lg:hidden bg-slate-900/50"
                     onClick={() => setShowMobileCart(false)}
                 />
             )}
@@ -43,7 +43,7 @@ export default function CartPanel({
             <div
                 className={`${
                     showMobileCart
-                        ? "fixed inset-y-0 right-0 w-80 flex shadow-2xl z-40"
+                        ? "flex fixed inset-y-0 right-0 z-40 w-80 shadow-2xl"
                         : "hidden"
                 } lg:flex lg:relative lg:w-1/3 xl:w-1/4 flex-col h-full bg-white dark:bg-slate-800 lg:shadow-xl dark:shadow-none lg:border-l lg:border-slate-200 dark:border-slate-700 lg:z-20 transition-all`}
             >
@@ -51,7 +51,7 @@ export default function CartPanel({
                 <CartHeader onClose={() => setShowMobileCart(false)} />
 
                 {/* ── Item List ── */}
-                <div className="flex-1 overflow-y-auto p-2 bg-slate-50 dark:bg-slate-900 transition-colors">
+                <div className="overflow-y-auto flex-1 p-2 transition-colors bg-slate-50 dark:bg-slate-900">
                     {cart.length === 0 ? (
                         <EmptyCartState />
                     ) : (
@@ -89,8 +89,8 @@ export default function CartPanel({
 /** Header panel keranjang dengan judul dan tombol tutup (mobile). */
 function CartHeader({ onClose }) {
     return (
-        <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-800 dark:bg-slate-900 text-white shrink-0 flex justify-between items-center transition-colors">
-            <h2 className="text-lg font-semibold flex items-center gap-2">
+        <div className="flex justify-between items-center p-4 text-white border-b transition-colors border-slate-200 dark:border-slate-700 bg-slate-800 dark:bg-slate-900 shrink-0">
+            <h2 className="flex gap-2 items-center text-lg font-semibold">
                 <svg
                     className="w-5 h-5 text-blue-400"
                     fill="none"
@@ -131,9 +131,9 @@ function CartHeader({ onClose }) {
 /** Pesan ketika keranjang masih kosong. */
 function EmptyCartState() {
     return (
-        <div className="h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
+        <div className="flex flex-col justify-center items-center h-full text-slate-400 dark:text-slate-500">
             <p>Keranjang masih kosong</p>
-            <p className="text-sm mt-1 text-slate-300 dark:text-slate-600">
+            <p className="mt-1 text-sm text-slate-300 dark:text-slate-600">
                 Pilih menu untuk menambahkan
             </p>
         </div>
@@ -143,20 +143,20 @@ function EmptyCartState() {
 /** Satu baris item di dalam keranjang. */
 function CartItem({ item, onUpdateQuantity, onRemove }) {
     return (
-        <div className="bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm border border-slate-100 dark:border-slate-700 relative group transition-colors">
+        <div className="relative p-3 bg-white rounded-lg border shadow-sm transition-colors dark:bg-slate-800 border-slate-100 dark:border-slate-700 group">
             {/* Name & Price */}
             <div className="flex justify-between items-start mb-2">
                 <div className="pr-6">
-                    <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-tight">
+                    <h4 className="text-sm font-semibold leading-tight text-slate-800 dark:text-slate-100">
                         {item.name}
                     </h4>
-                    <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                    <div className="text-xs font-medium text-blue-600 dark:text-blue-400">
                         Rp {Number(item.price).toLocaleString("id-ID")}
                     </div>
                 </div>
                 <button
                     onClick={() => onRemove(item.id)}
-                    className="text-slate-300 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 absolute top-3 right-3 transition-colors"
+                    className="absolute top-3 right-3 transition-colors text-slate-300 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400"
                 >
                     <svg
                         className="w-5 h-5"
@@ -176,19 +176,19 @@ function CartItem({ item, onUpdateQuantity, onRemove }) {
 
             {/* Quantity Controls & Subtotal */}
             <div className="flex justify-between items-center">
-                <div className="flex items-center bg-slate-100 dark:bg-slate-700 rounded-lg p-1 border border-slate-200 dark:border-slate-600">
+                <div className="flex items-center p-1 rounded-lg border bg-slate-100 dark:bg-slate-700 border-slate-200 dark:border-slate-600">
                     <button
                         onClick={() => onUpdateQuantity(item.id, -1)}
-                        className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-600 rounded shadow-sm text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 active:scale-95 transition-all"
+                        className="flex justify-center items-center w-8 h-8 bg-white rounded shadow-sm transition-all dark:bg-slate-600 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 active:scale-95"
                     >
                         -
                     </button>
-                    <span className="w-10 text-center text-sm font-bold text-slate-800 dark:text-slate-100">
+                    <span className="w-10 text-sm font-bold text-center text-slate-800 dark:text-slate-100">
                         {item.quantity}
                     </span>
                     <button
                         onClick={() => onUpdateQuantity(item.id, 1)}
-                        className="w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-600 rounded shadow-sm text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 active:scale-95 transition-all"
+                        className="flex justify-center items-center w-8 h-8 bg-white rounded shadow-sm transition-all dark:bg-slate-600 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 active:scale-95"
                     >
                         +
                     </button>
@@ -215,7 +215,7 @@ function CartFooter({ cart, data, setData, processing, subtotal, tax, total, onC
     return (
         <div className="p-4 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] transition-colors">
             {/* Price Summary */}
-            <div className="space-y-2 mb-4">
+            <div className="mb-4 space-y-2">
                 <div className="flex justify-between text-sm text-slate-500 dark:text-slate-400">
                     <span>Subtotal</span>
                     <span>Rp {subtotal.toLocaleString("id-ID")}</span>
@@ -224,7 +224,7 @@ function CartFooter({ cart, data, setData, processing, subtotal, tax, total, onC
                     <span>PPN (11%)</span>
                     <span>Rp {tax.toLocaleString("id-ID")}</span>
                 </div>
-                <div className="flex justify-between text-lg font-bold text-slate-800 dark:text-slate-100 pt-2 border-t border-slate-100 dark:border-slate-700">
+                <div className="flex justify-between pt-2 text-lg font-bold border-t text-slate-800 dark:text-slate-100 border-slate-100 dark:border-slate-700">
                     <span>Total Tagihan</span>
                     <span>Rp {total.toLocaleString("id-ID")}</span>
                 </div>
@@ -232,7 +232,7 @@ function CartFooter({ cart, data, setData, processing, subtotal, tax, total, onC
 
             {/* Payment Method Selector */}
             <div className="mb-4">
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block mb-2 text-xs font-semibold tracking-wider uppercase text-slate-500 dark:text-slate-400">
                     Metode Pembayaran
                 </label>
                 <div className="grid grid-cols-3 gap-2">
