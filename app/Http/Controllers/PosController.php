@@ -31,10 +31,27 @@ class PosController extends Controller
                 ]);
             });
 
+        // Fetch Tripay Payment Channels
+        $apiKey = env('TRIPAY_API_KEY');
+        $mode = env('TRIPAY_MODE', 'sandbox');
+        $baseUrl = $mode === 'live' 
+            ? 'https://tripay.co.id/api/merchant/payment-channel' 
+            : 'https://tripay.co.id/api-sandbox/merchant/payment-channel';
+
+        $channels = \Illuminate\Support\Facades\Cache::remember('tripay_channels', 3600, function() use ($apiKey, $baseUrl) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::withToken($apiKey)->get($baseUrl);
+                return $response->successful() ? $response->json('data') : [];
+            } catch (\Exception $e) {
+                return [];
+            }
+        });
+
         return Inertia::render('Pos/Index', [
             'categories' => $categories,
             'products' => $products,
             'cart_items' => $cart,
+            'payment_channels' => $channels,
         ]);
     }
 
@@ -107,7 +124,7 @@ class PosController extends Controller
     public function checkout(Request $request)
     {
         $validated = $request->validate([
-            'payment_method' => 'required|in:cash,qris,card',
+            'payment_method' => 'required|string',
             'cart' => 'required|array|min:1',
             'cart.*.id' => 'required|exists:products,id',
             'cart.*.quantity' => 'required|integer|min:1',
@@ -182,8 +199,7 @@ class PosController extends Controller
                 ? 'https://tripay.co.id/api/transaction/create' 
                 : 'https://tripay.co.id/api-sandbox/transaction/create';
 
-            // Map method to Tripay channel codes
-            $method = $validated['payment_method'] === 'qris' ? 'QRIS' : 'BRIVA'; // Default to BRIVA for 'card' or others
+            $method = $validated['payment_method'];
 
             $signature = hash_hmac('sha256', $merchantCode . $transaction->invoice_number . (int)$grandTotal, $privateKey);
 
