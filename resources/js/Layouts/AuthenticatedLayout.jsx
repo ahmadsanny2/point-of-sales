@@ -8,6 +8,8 @@ import useDarkMode from "@/Hooks/useDarkMode";
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
+    const { appSettings } = usePage().props;
+    const storeName = appSettings?.store?.name || 'POS ADMIN';
     const [isDark, toggleTheme] = useDarkMode();
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
@@ -21,10 +23,10 @@ export default function AuthenticatedLayout({ header, children }) {
                     {/* Sidebar Desktop */}
                     <aside className="hidden flex-col w-64 shadow-xl transition-all duration-300 bg-slate-900 sm:flex">
                         <div className="flex justify-center items-center h-16 border-b shrink-0 border-slate-800">
-                            <Link href="/" className="flex gap-2 items-center">
-                                <ApplicationLogo className="block w-auto h-9 text-white fill-current" />
-                                <span className="text-xl font-bold tracking-wider text-white">
-                                    POS ADMIN
+                            <Link href="/" className="flex gap-2 items-center px-4">
+                                <ApplicationLogo className="block w-auto h-8 text-white fill-current shrink-0" />
+                                <span className="text-lg font-bold tracking-tight text-white truncate">
+                                    {storeName}
                                 </span>
                             </Link>
                         </div>
@@ -143,6 +145,37 @@ export default function AuthenticatedLayout({ header, children }) {
                                         ></path>
                                     </svg>
                                     Produk
+                                </Link>
+
+                                <div className="px-3 pt-5 pb-2">
+                                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                                        Sistem
+                                    </p>
+                                </div>
+                                <Link
+                                    href={route("settings.store")}
+                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 font-medium group ${route().current("settings.*") ? "bg-blue-600 text-white shadow-md" : "text-slate-300 hover:bg-slate-800 hover:text-white"}`}
+                                >
+                                    <svg
+                                        className={`w-5 h-5 ${route().current("settings.*") ? "text-white" : "text-slate-500 group-hover:text-slate-300"} transition-colors`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                                        ></path>
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                        ></path>
+                                    </svg>
+                                    Pengaturan CMS
                                 </Link>
                             </nav>
                         </div>
