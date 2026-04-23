@@ -27,7 +27,14 @@ Route::middleware('auth')->group(function () {
     // Kiosk POS (Accessible by all auth users like Staff and Admin)
     Route::get('/pos', [PosController::class, 'index'])->name('pos.index');
     Route::post('/pos/checkout', [PosController::class, 'checkout'])->name('pos.checkout');
-    Route::post('/pos/payment-success', [PosController::class, 'paymentSuccess'])->name('pos.payment-success');
+    Route::post('/pos/payment-callback', [PosController::class, 'handleCallback'])
+        ->name('pos.payment-callback')
+        ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]); // For older Laravel or if manually handled
+    
+    // In Laravel 11, we usually use bootstrap/app.php for CSRF exemption, 
+    // but adding it here is a common pattern in some setups.
+    // Let's just add the route for now.
+    Route::post('/pos/payment-callback', [PosController::class, 'handleCallback'])->name('pos.payment-callback');
     
     // Cart management
     Route::post('/pos/cart/add', [PosController::class, 'addToCart'])->name('pos.cart.add');
