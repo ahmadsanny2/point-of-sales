@@ -1,8 +1,13 @@
 import React from 'react';
 import dayjs from 'dayjs';
+import { usePage } from '@inertiajs/react';
 
 const Receipt = React.forwardRef(({ transaction }, ref) => {
     if (!transaction) return null;
+
+    const { appSettings } = usePage().props;
+    const store = appSettings?.store || {};
+    const receipt = appSettings?.receipt || {};
 
     return (
         <div ref={ref} className="print-only">
@@ -33,10 +38,16 @@ const Receipt = React.forwardRef(({ transaction }, ref) => {
             `}} />
             
             <div className="text-center mb-4">
-                <h2 className="text-lg font-bold uppercase tracking-widest">SalePOS</h2>
-                <p className="text-xs">Sistem Kasir Modern</p>
-                <p className="text-[10px]">Jl. Contoh No. 123, Jakarta</p>
-                <p className="text-[10px]">Telp: 021-12345678</p>
+                {receipt.show_logo === '1' && store.logo_path && (
+                    <div className="flex justify-center mb-2">
+                        <img src={`/storage/${store.logo_path}`} alt="Logo" className="h-10 w-auto object-contain grayscale" />
+                    </div>
+                )}
+                <h2 className="text-lg font-bold uppercase tracking-widest">{store.name || 'SalePOS'}</h2>
+                <p className="text-xs">{store.tagline || 'Sistem Kasir Modern'}</p>
+                {store.address && <p className="text-[10px]">{store.address}</p>}
+                {store.phone && <p className="text-[10px]">Telp: {store.phone}</p>}
+                {receipt.receipt_header && <p className="text-[10px] mt-1 italic">{receipt.receipt_header}</p>}
             </div>
 
             <div className="border-t border-dashed border-black my-2"></div>
@@ -100,10 +111,8 @@ const Receipt = React.forwardRef(({ transaction }, ref) => {
 
             <div className="border-t border-dashed border-black my-4"></div>
 
-            <div className="text-center text-[9px] italic">
-                <p>Terima kasih atas kunjungan Anda</p>
-                <p>Barang yang sudah dibeli</p>
-                <p>tidak dapat ditukar/dikembalikan</p>
+            <div className="text-center text-[9px] italic whitespace-pre-line">
+                {receipt.receipt_footer || 'Terima kasih atas kunjungan Anda'}
             </div>
             
             <div className="h-8"></div> {/* Bottom margin for cutter */}
