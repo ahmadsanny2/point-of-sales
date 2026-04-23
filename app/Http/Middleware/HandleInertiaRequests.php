@@ -34,6 +34,11 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'appSettings' => [
+                'store'      => \App\Models\Setting::getGroup('store'),
+                'appearance' => \App\Models\Setting::getGroup('appearance'),
+                'receipt'    => \App\Models\Setting::getGroup('receipt'),
+            ],
         ];
     }
 }
