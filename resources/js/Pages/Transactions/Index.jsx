@@ -47,9 +47,19 @@ export default function Index({ transactions }) {
                                             Rp {Number(trx.total_amount).toLocaleString('id-ID')}
                                         </td>
                                         <td className="px-6 py-4 text-center">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${trx.status === 'paid' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'}`}>
-                                                {trx.status === 'paid' ? 'Lunas' : 'Dibatalkan'}
-                                            </span>
+                                            {trx.status === 'paid' ? (
+                                                <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+                                                    Lunas
+                                                </span>
+                                            ) : trx.status === 'pending' ? (
+                                                <span className="px-2 py-1 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                                                    Pending
+                                                </span>
+                                            ) : (
+                                                <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">
+                                                    Dibatalkan
+                                                </span>
+                                            )}
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <Link href={route('transactions.show', trx.id)} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 px-3 py-1.5 rounded transition-colors">
