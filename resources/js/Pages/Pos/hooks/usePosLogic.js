@@ -7,10 +7,11 @@ import Swal from "sweetalert2";
  * Memisahkan logika dari tampilan (UI) agar lebih mudah dibaca dan diuji.
  *
  * @param {Array}   products            - Daftar produk dari server
+ * @param {Array}   cart_items          - Daftar item keranjang dari server
  * @param {string}  midtrans_client_key - Client key Midtrans
  * @param {boolean} is_production       - Flag environment Midtrans
  */
-export function usePosLogic({ products, midtrans_client_key, is_production }) {
+export function usePosLogic({ products, cart_items, midtrans_client_key, is_production }) {
     const { flash } = usePage().props;
 
     // ─── UI State ────────────────────────────────────────────────────────────
@@ -20,8 +21,13 @@ export function usePosLogic({ products, midtrans_client_key, is_production }) {
     const [tenderedAmount, setTenderedAmount] = useState("");
     const [showMobileCart, setShowMobileCart] = useState(false);
 
-    // ─── Cart State ───────────────────────────────────────────────────────────
-    const [cart, setCart] = useState([]);
+    // ─── Cart State (Synchronized with props) ────────────────────────────────
+    const [cart, setCart] = useState(cart_items || []);
+
+    // Sync state when props change (after server actions)
+    useEffect(() => {
+        setCart(cart_items || []);
+    }, [cart_items]);
 
     // ─── Form (Inertia) ───────────────────────────────────────────────────────
     const { data, setData, post, processing } = useForm({
@@ -31,10 +37,7 @@ export function usePosLogic({ products, midtrans_client_key, is_production }) {
 
     // ─── Side Effects ─────────────────────────────────────────────────────────
 
-    /**
-     * Memuat script Midtrans Snap ke dalam DOM.
-     * Script dihapus ketika komponen di-unmount.
-     */
+    /** Memuat script Midtrans Snap */
     useEffect(() => {
         if (!midtrans_client_key) return;
 
@@ -50,10 +53,7 @@ export function usePosLogic({ products, midtrans_client_key, is_production }) {
         };
     }, [midtrans_client_key, is_production]);
 
-    /**
-     * Mendeteksi snap_token dari server flash dan menampilkan UI Midtrans Snap.
-     * Menangani semua skenario: sukses, pending, error, dan close.
-     */
+    /** Mendeteksi snap_token dari server flash */
     useEffect(() => {
         if (flash?.snap_token && window.snap) {
             setShowPaymentModal(false);
@@ -66,25 +66,13 @@ export function usePosLogic({ products, midtrans_client_key, is_production }) {
                     );
                 },
                 onPending: () => {
-                    Swal.fire(
-                        "Tertunda",
-                        "Pembayaran tertunda. Anda bisa membayarnya nanti.",
-                        "info",
-                    );
+                    Swal.fire("Tertunda", "Pembayaran tertunda.", "info");
                 },
                 onError: () => {
-                    Swal.fire(
-                        "Gagal",
-                        "Sistem gagal memproses pembayaran.",
-                        "error",
-                    );
+                    Swal.fire("Gagal", "Sistem gagal memproses pembayaran.", "error");
                 },
                 onClose: () => {
-                    Swal.fire(
-                        "Dibatalkan",
-                        "Anda menutup halaman sebelum menyelesaikan pembayaran.",
-                        "warning",
-                    );
+                    Swal.fire("Dibatalkan", "Anda menutup halaman pembayaran.", "warning");
                 },
             });
         }
@@ -92,93 +80,62 @@ export function usePosLogic({ products, midtrans_client_key, is_production }) {
 
     // ─── Derived State (Memoized) ─────────────────────────────────────────────
 
-    /** Produk yang sudah difilter berdasarkan kategori aktif dan query pencarian. */
     const filteredProducts = useMemo(() => {
         return products.filter((product) => {
-            const matchesCategory =
-                activeCategory === "all" ||
-                product.category_id === activeCategory;
-            const matchesSearch =
-                product.name
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase()) ||
-                (product.sku &&
-                    product.sku
-                        .toLowerCase()
-                        .includes(searchQuery.toLowerCase()));
+            const matchesCategory = activeCategory === "all" || product.category_id === activeCategory;
+            const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (product.sku && product.sku.toLowerCase().includes(searchQuery.toLowerCase()));
             return matchesCategory && matchesSearch;
         });
     }, [products, activeCategory, searchQuery]);
 
-    /** Kalkulasi harga: subtotal, pajak (PPN 11%), dan total. */
-    const subtotal = cart.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0,
-    );
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const tax = subtotal * 0.11;
     const total = subtotal + tax;
 
-    // ─── Cart Actions ─────────────────────────────────────────────────────────
+    // ─── Cart Actions (Server-side persistence) ──────────────────────────────
 
-    /** Menambahkan produk ke keranjang. Jika sudah ada, menaikkan qty (max = stok). */
     const addToCart = (product) => {
-        setCart((prev) => {
-            const existing = prev.find((item) => item.id === product.id);
-            if (existing) {
-                if (existing.quantity >= product.stock) {
-                    Swal.fire({
-                        icon: "warning",
-                        title: "Stok Terbatas!",
-                        text: "Barang yang ditambahkan melampaui stok yang tersedia.",
-                        confirmButtonColor: "#3085d6",
-                    });
-                    return prev;
-                }
-                return prev.map((item) =>
-                    item.id === product.id
-                        ? { ...item, quantity: item.quantity + 1 }
-                        : item,
-                );
+        const existing = cart.find((item) => item.id === product.id);
+        if (existing && existing.quantity >= product.stock) {
+            Swal.fire({ icon: "warning", title: "Stok Terbatas!" });
+            return;
+        }
+
+        router.post(route("pos.cart.add"), { product_id: product.id }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                // State will be updated via useEffect when cart_items prop changes
             }
-            return [...prev, { ...product, quantity: 1 }];
         });
     };
 
-    /**
-     * Mengubah qty item di keranjang.
-     * @param {number} id    - ID produk
-     * @param {number} delta - +1 atau -1
-     */
     const updateQuantity = (id, delta) => {
-        setCart((prev) =>
-            prev.map((item) => {
-                if (item.id === id) {
-                    const newQuantity = item.quantity + delta;
-                    if (newQuantity < 1) return item;
-                    if (newQuantity > item.stock) {
-                        Swal.fire({
-                            icon: "warning",
-                            title: "Stok Terbatas!",
-                            text: "Barang yang ditambahkan melampaui persediaan pabrik.",
-                            confirmButtonColor: "#3085d6",
-                        });
-                        return item;
-                    }
-                    return { ...item, quantity: newQuantity };
-                }
-                return item;
-            }),
-        );
+        const item = cart.find((i) => i.id === id);
+        if (!item) return;
+
+        const newQuantity = item.quantity + delta;
+        if (newQuantity < 1) return;
+        if (newQuantity > item.stock) {
+            Swal.fire({ icon: "warning", title: "Stok Terbatas!" });
+            return;
+        }
+
+        router.put(route("pos.cart.update"), { 
+            product_id: id, 
+            quantity: newQuantity 
+        }, { preserveScroll: true });
     };
 
-    /** Menghapus item dari keranjang berdasarkan ID. */
     const removeFromCart = (id) => {
-        setCart((prev) => prev.filter((item) => item.id !== id));
+        router.delete(route("pos.cart.remove"), { 
+            data: { product_id: id },
+            preserveScroll: true 
+        });
     };
 
     // ─── Payment Actions ──────────────────────────────────────────────────────
 
-    /** Membuka modal pembayaran dan menyinkronkan cart ke form Inertia. */
     const handleCheckout = () => {
         if (cart.length === 0) return;
         setData("cart", cart);
@@ -186,28 +143,19 @@ export function usePosLogic({ products, midtrans_client_key, is_production }) {
         setTenderedAmount("");
     };
 
-    /** Memvalidasi uang tunai lalu mengirim request checkout ke server. */
     const submitPayment = () => {
         if (data.payment_method === "cash" && Number(tenderedAmount) < total) {
-            return Swal.fire({
-                icon: "error",
-                title: "Pembayaran Kurang!",
-                text: "Uang yang diterima kurang dari total tagihan bayar.",
-                confirmButtonColor: "#d33",
-            });
+            return Swal.fire({ icon: "error", title: "Pembayaran Kurang!" });
         }
 
         post(route("pos.checkout"), {
             onSuccess: () => {
-                setCart([]);
                 setShowPaymentModal(false);
             },
         });
     };
 
-    // ─── Return ───────────────────────────────────────────────────────────────
     return {
-        // State
         flash,
         cart,
         activeCategory,
@@ -220,19 +168,13 @@ export function usePosLogic({ products, midtrans_client_key, is_production }) {
         setTenderedAmount,
         showMobileCart,
         setShowMobileCart,
-
-        // Form
         data,
         setData,
         processing,
-
-        // Derived
         filteredProducts,
         subtotal,
         tax,
         total,
-
-        // Actions
         addToCart,
         updateQuantity,
         removeFromCart,
