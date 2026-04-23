@@ -12,8 +12,8 @@ import PaymentModal from "./components/PaymentModal";
  * Seluruh business logic dikelola oleh `usePosLogic`.
  * Komponen ini hanya bertugas merakit tampilan dari sub-komponen.
  */
-export default function Index({ categories, products, cart_items }) {
-    const pos = usePosLogic({ products, cart_items });
+export default function Index({ categories, products, cart_items, payment_channels }) {
+    const pos = usePosLogic({ products, cart_items, payment_channels });
 
     return (
         <PosLayout>
@@ -64,8 +64,11 @@ export default function Index({ categories, products, cart_items }) {
                 total={pos.total}
                 tenderedAmount={pos.tenderedAmount}
                 setTenderedAmount={pos.setTenderedAmount}
+                setPaymentMethod={(method) => pos.setData('payment_method', method)}
                 processing={pos.processing}
                 onSubmit={pos.submitPayment}
+                paymentInstructions={pos.paymentInstructions}
+                paymentChannels={pos.payment_channels}
             />
         </PosLayout>
     );
