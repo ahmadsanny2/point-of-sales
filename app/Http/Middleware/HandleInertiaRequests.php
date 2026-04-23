@@ -39,6 +39,12 @@ class HandleInertiaRequests extends Middleware
                 'appearance' => \App\Models\Setting::getGroup('appearance'),
                 'receipt'    => \App\Models\Setting::getGroup('receipt'),
             ],
+            'flash' => [
+                'message' => fn () => $request->session()->get('message'),
+                'error' => fn () => $request->session()->get('error'),
+                'snap_token' => fn () => $request->session()->get('snap_token'), // Legacy if needed
+                'tripay_transaction' => fn () => $request->session()->get('tripay_transaction'),
+            ],
         ];
     }
 }
