@@ -230,28 +230,6 @@ function CartFooter({ cart, data, setData, processing, subtotal, tax, total, onC
                 </div>
             </div>
 
-            {/* Payment Method Selector */}
-            <div className="mb-4">
-                <label className="block mb-2 text-xs font-semibold tracking-wider uppercase text-slate-500 dark:text-slate-400">
-                    Metode Pembayaran
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                    {PAYMENT_METHODS.map(({ value, label }) => (
-                        <button
-                            key={value}
-                            onClick={() => setData("payment_method", value)}
-                            className={`py-2 px-1 text-sm font-medium rounded-md border transition-all ${
-                                data.payment_method === value
-                                    ? "bg-blue-50 dark:bg-blue-900/30 border-blue-600 dark:border-blue-500 text-blue-700 dark:text-blue-400"
-                                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
-                            }`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
             {/* Checkout Button */}
             <button
                 onClick={onCheckout}
