@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 const Logo = () => (
     <div className="flex items-center gap-2.5">
@@ -14,6 +14,8 @@ const Logo = () => (
 );
 
 export default function LandingFooter({ auth }) {
+    const { appSettings } = usePage().props;
+    const landing = appSettings?.landing || {};
     return (
         <footer className="border-t border-white/10 py-12 px-6">
             <div className="max-w-7xl mx-auto">
@@ -60,7 +62,9 @@ export default function LandingFooter({ auth }) {
 
                 {/* Bottom bar */}
                 <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <p className="text-slate-600 text-xs">© 2026 SalePOS. Dibuat dengan ❤️ di Indonesia.</p>
+                    <p className="text-slate-600 text-xs">
+                        {landing.footer_text || `© ${new Date().getFullYear()} SalePOS. All rights reserved.`}
+                    </p>
                     <p className="text-slate-700 text-xs">Didukung Laravel + Inertia.js + React</p>
                 </div>
             </div>
