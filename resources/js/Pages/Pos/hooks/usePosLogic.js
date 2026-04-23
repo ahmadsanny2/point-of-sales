@@ -8,10 +8,8 @@ import Swal from "sweetalert2";
  *
  * @param {Array}   products            - Daftar produk dari server
  * @param {Array}   cart_items          - Daftar item keranjang dari server
- * @param {string}  midtrans_client_key - Client key Midtrans
- * @param {boolean} is_production       - Flag environment Midtrans
  */
-export function usePosLogic({ products, cart_items, midtrans_client_key, is_production }) {
+export function usePosLogic({ products, cart_items }) {
     const { flash } = usePage().props;
 
     // ─── UI State ────────────────────────────────────────────────────────────
@@ -37,44 +35,16 @@ export function usePosLogic({ products, cart_items, midtrans_client_key, is_prod
 
     // ─── Side Effects ─────────────────────────────────────────────────────────
 
-    /** Memuat script Midtrans Snap */
+    /** Mendeteksi tripay_transaction dari server flash */
     useEffect(() => {
-        if (!midtrans_client_key) return;
-
-        const script = document.createElement("script");
-        script.src = is_production
-            ? "https://app.midtrans.com/snap/snap.js"
-            : "https://app.sandbox.midtrans.com/snap/snap.js";
-        script.setAttribute("data-client-key", midtrans_client_key);
-        document.body.appendChild(script);
-
-        return () => {
-            document.body.removeChild(script);
-        };
-    }, [midtrans_client_key, is_production]);
-
-    /** Mendeteksi snap_token dari server flash */
-    useEffect(() => {
-        if (flash?.snap_token && window.snap) {
+        if (flash?.tripay_transaction) {
             setShowPaymentModal(false);
-            window.snap.pay(flash.snap_token.token, {
-                onSuccess: () => {
-                    router.post(
-                        route("pos.payment-success"),
-                        { invoice_number: flash.snap_token.invoice },
-                        { onSuccess: () => setCart([]) },
-                    );
-                },
-                onPending: () => {
-                    Swal.fire("Tertunda", "Pembayaran tertunda.", "info");
-                },
-                onError: () => {
-                    Swal.fire("Gagal", "Sistem gagal memproses pembayaran.", "error");
-                },
-                onClose: () => {
-                    Swal.fire("Dibatalkan", "Anda menutup halaman pembayaran.", "warning");
-                },
-            });
+            // Redirect to Tripay checkout page
+            if (flash.tripay_transaction.checkout_url) {
+                window.location.href = flash.tripay_transaction.checkout_url;
+            } else {
+                Swal.fire("Berhasil", "Pesanan dibuat, silakan cek instruksi pembayaran.", "success");
+            }
         }
     }, [flash]);
 

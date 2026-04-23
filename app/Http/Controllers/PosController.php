@@ -35,8 +35,6 @@ class PosController extends Controller
             'categories' => $categories,
             'products' => $products,
             'cart_items' => $cart,
-            'midtrans_client_key' => env('MIDTRANS_CLIENT_KEY', ''),
-            'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
         ]);
     }
 
@@ -174,41 +172,66 @@ class PosController extends Controller
                 return redirect()->back()->with('message', 'Transaksi berhasil diselesaikan! Invoice: ' . $transaction->invoice_number);
             }
 
-            // --- Midtrans Integration ---
-            $serverKey = env('MIDTRANS_SERVER_KEY');
-            $isProduction = env('MIDTRANS_IS_PRODUCTION', false);
-            $baseUrl = $isProduction ? 'https://app.midtrans.com/snap/v1/transactions' : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
+            // --- Tripay Integration ---
+            $apiKey = env('TRIPAY_API_KEY');
+            $privateKey = env('TRIPAY_PRIVATE_KEY');
+            $merchantCode = env('TRIPAY_MERCHANT_CODE');
+            $mode = env('TRIPAY_MODE', 'sandbox');
+            
+            $baseUrl = $mode === 'live' 
+                ? 'https://tripay.co.id/api/transaction/create' 
+                : 'https://tripay.co.id/api-sandbox/transaction/create';
+
+            // Map method to Tripay channel codes
+            $method = $validated['payment_method'] === 'qris' ? 'QRIS' : 'BRIVA'; // Default to BRIVA for 'card' or others
+
+            $signature = hash_hmac('sha256', $merchantCode . $transaction->invoice_number . (int)$grandTotal, $privateKey);
+
+            $orderItems = [];
+            foreach ($validated['cart'] as $item) {
+                $product = Product::find($item['id']);
+                $orderItems[] = [
+                    'sku' => $product->sku ?? 'PROD-'.$product->id,
+                    'name' => $product->name,
+                    'price' => (int) $product->price,
+                    'quantity' => (int) $item['quantity']
+                ];
+            }
+
+            // Add tax as an item if needed for Tripay
+            if ($taxAmount > 0) {
+                $orderItems[] = [
+                    'sku' => 'TAX',
+                    'name' => 'Pajak ('.$taxPercent.'%)',
+                    'price' => (int) $taxAmount,
+                    'quantity' => 1
+                ];
+            }
 
             $params = [
-                'transaction_details' => [
-                    'order_id' => $transaction->invoice_number,
-                    'gross_amount' => (int) $grandTotal,
-                ],
-                'customer_details' => [
-                    'first_name' => Auth::user() ? Auth::user()->name : 'Customer',
-                    'email' => Auth::user() ? Auth::user()->email : 'customer@pos.local',
-                ]
+                'method'         => $method,
+                'merchant_ref'   => $transaction->invoice_number,
+                'amount'         => (int) $grandTotal,
+                'customer_name'  => Auth::user()->name,
+                'customer_email' => Auth::user()->email,
+                'customer_phone' => '081234567890',
+                'order_items'    => $orderItems,
+                'callback_url'   => route('pos.payment-callback'),
+                'return_url'     => route('pos.index'),
+                'expired_time'   => (time() + (24 * 60 * 60)), // 24 hours
+                'signature'      => $signature
             ];
 
-            $response = \Illuminate\Support\Facades\Http::withBasicAuth($serverKey, '')
+            $response = \Illuminate\Support\Facades\Http::withToken($apiKey)
                 ->post($baseUrl, $params);
 
             if ($response->successful()) {
-                $snapToken = $response->json('token');
-                
-                // Clear database cart here as well or in paymentSuccess? 
-                // Better in paymentSuccess for robustness, but usually clear on checkout start is fine for POS.
-                // However, if the user closes snap, they might want their cart back.
-                // Let's clear ONLY upon success.
-                
+                $tripayData = $response->json('data');
                 DB::commit();
                 
-                return redirect()->back()->with('snap_token', [
-                    'token' => $snapToken,
-                    'invoice' => $transaction->invoice_number
-                ]);
+                return redirect()->back()->with('tripay_transaction', $tripayData);
             } else {
-                throw new \Exception('Gagal memproses gateway pembayaran: ' . json_encode($response->json()));
+                throw new \Exception('Gagal memproses Tripay: ' . json_encode($response->json()));
             }
 
         } catch (\Exception $e) {
@@ -256,5 +279,48 @@ class PosController extends Controller
             DB::rollBack();
             return redirect()->route('pos.index')->with('error', 'Terjadi kesalahan saat memproses Payment Webhook: ' . $e->getMessage());
         }
+    }
+
+    public function handleCallback(Request $request)
+    {
+        $callbackSignature = $request->header('X-Callback-Signature');
+        $json = $request->getContent();
+        $signature = hash_hmac('sha256', $json, env('TRIPAY_PRIVATE_KEY'));
+
+        if ($signature !== $callbackSignature) {
+            return response()->json(['success' => false, 'message' => 'Invalid signature']);
+        }
+
+        $data = json_decode($json);
+        $event = $request->header('X-Callback-Event');
+
+        if ($event === 'payment_status') {
+            $transaction = Transaction::where('invoice_number', $data->merchant_ref)->first();
+
+            if (!$transaction) {
+                return response()->json(['success' => false, 'message' => 'Transaction not found']);
+            }
+
+            if ($data->status === 'PAID') {
+                if ($transaction->status !== 'paid') {
+                    // Deduct stock
+                    foreach ($transaction->items as $item) {
+                        $product = Product::find($item->product_id);
+                        if ($product) {
+                            $product->decrement('stock', $item->quantity);
+                        }
+                    }
+
+                    $transaction->update(['status' => 'paid']);
+                    
+                    // Clear cart for this user
+                    \App\Models\CartItem::where('user_id', $transaction->user_id)->delete();
+                }
+            } elseif ($data->status === 'EXPIRED' || $data->status === 'FAILED') {
+                $transaction->update(['status' => 'failed']);
+            }
+        }
+
+        return response()->json(['success' => true]);
     }
 }
