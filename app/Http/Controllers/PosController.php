@@ -21,12 +21,89 @@ class PosController extends Controller
             ->with('category')
             ->get();
 
+        $cart = \App\Models\CartItem::where('user_id', Auth::id())
+            ->with('product')
+            ->get()
+            ->map(function ($item) {
+                return array_merge($item->product->toArray(), [
+                    'quantity' => $item->quantity,
+                    'cart_item_id' => $item->id, // optional
+                ]);
+            });
+
         return Inertia::render('Pos/Index', [
             'categories' => $categories,
             'products' => $products,
+            'cart_items' => $cart,
             'midtrans_client_key' => env('MIDTRANS_CLIENT_KEY', ''),
             'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
         ]);
+    }
+
+    public function addToCart(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+        ]);
+
+        $product = Product::findOrFail($request->product_id);
+        
+        $cartItem = \App\Models\CartItem::where('user_id', Auth::id())
+            ->where('product_id', $request->product_id)
+            ->first();
+
+        if ($cartItem) {
+            if ($cartItem->quantity < $product->stock) {
+                $cartItem->increment('quantity');
+            } else {
+                return back()->with('error', 'Stok tidak mencukupi.');
+            }
+        } else {
+            if ($product->stock > 0) {
+                \App\Models\CartItem::create([
+                    'user_id' => Auth::id(),
+                    'product_id' => $request->product_id,
+                    'quantity' => 1
+                ]);
+            } else {
+                return back()->with('error', 'Stok habis.');
+            }
+        }
+
+        return back();
+    }
+
+    public function updateQuantity(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        $product = Product::findOrFail($request->product_id);
+        
+        if ($request->quantity > $product->stock) {
+            return back()->with('error', 'Jumlah melebihi stok tersedia.');
+        }
+
+        \App\Models\CartItem::where('user_id', Auth::id())
+            ->where('product_id' , $request->product_id)
+            ->update(['quantity' => $request->quantity]);
+
+        return back();
+    }
+
+    public function removeFromCart(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+        ]);
+
+        \App\Models\CartItem::where('user_id', Auth::id())
+            ->where('product_id', $request->product_id)
+            ->delete();
+
+        return back();
     }
 
     public function checkout(Request $request)
@@ -68,15 +145,17 @@ class PosController extends Controller
                 }
             }
 
-            $taxAmount = $totalAmount * 0.11;
+            $taxPercent = (float) \App\Models\Setting::get('store.tax_percent', 0);
+            $taxAmount = $totalAmount * ($taxPercent / 100);
             $grandTotal = $totalAmount + $taxAmount;
 
             $isCash = $validated['payment_method'] === 'cash';
+            $prefix = \App\Models\Setting::get('receipt.invoice_prefix', 'INV');
 
             // Create Transaction
             $transaction = Transaction::create([
                 'user_id' => Auth::id(),
-                'invoice_number' => 'INV-' . date('Ymd') . '-' . mt_rand(1000, 9999),
+                'invoice_number' => $prefix . '-' . date('Ymd') . '-' . mt_rand(1000, 9999),
                 'total_amount' => $grandTotal,
                 'payment_method' => $validated['payment_method'],
                 'status' => $isCash ? 'paid' : 'pending',
@@ -88,6 +167,9 @@ class PosController extends Controller
             }
 
             if ($isCash) {
+                // Clear database cart
+                \App\Models\CartItem::where('user_id', Auth::id())->delete();
+                
                 DB::commit();
                 return redirect()->back()->with('message', 'Transaksi berhasil diselesaikan! Invoice: ' . $transaction->invoice_number);
             }
@@ -113,6 +195,12 @@ class PosController extends Controller
 
             if ($response->successful()) {
                 $snapToken = $response->json('token');
+                
+                // Clear database cart here as well or in paymentSuccess? 
+                // Better in paymentSuccess for robustness, but usually clear on checkout start is fine for POS.
+                // However, if the user closes snap, they might want their cart back.
+                // Let's clear ONLY upon success.
+                
                 DB::commit();
                 
                 return redirect()->back()->with('snap_token', [
@@ -157,6 +245,9 @@ class PosController extends Controller
             $transaction->update([
                 'status' => 'paid'
             ]);
+
+            // Clear database cart
+            \App\Models\CartItem::where('user_id', Auth::id())->delete();
 
             DB::commit();
             return redirect()->route('pos.index')->with('message', 'Pembayaran Midtrans Berhasil! Invoice: ' . $transaction->invoice_number);
