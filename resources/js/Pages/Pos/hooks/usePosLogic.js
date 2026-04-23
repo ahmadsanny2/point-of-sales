@@ -8,8 +8,9 @@ import Swal from "sweetalert2";
  *
  * @param {Array}   products            - Daftar produk dari server
  * @param {Array}   cart_items          - Daftar item keranjang dari server
+ * @param {Array}   payment_channels    - Daftar channel pembayaran Tripay
  */
-export function usePosLogic({ products, cart_items }) {
+export function usePosLogic({ products, cart_items, payment_channels }) {
     const { flash } = usePage().props;
 
     // ─── UI State ────────────────────────────────────────────────────────────
@@ -18,6 +19,7 @@ export function usePosLogic({ products, cart_items }) {
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [tenderedAmount, setTenderedAmount] = useState("");
     const [showMobileCart, setShowMobileCart] = useState(false);
+    const [paymentInstructions, setPaymentInstructions] = useState(null);
 
     // ─── Cart State (Synchronized with props) ────────────────────────────────
     const [cart, setCart] = useState(cart_items || []);
@@ -38,15 +40,17 @@ export function usePosLogic({ products, cart_items }) {
     /** Mendeteksi tripay_transaction dari server flash */
     useEffect(() => {
         if (flash?.tripay_transaction) {
-            setShowPaymentModal(false);
-            // Redirect to Tripay checkout page
-            if (flash.tripay_transaction.checkout_url) {
-                window.location.href = flash.tripay_transaction.checkout_url;
-            } else {
-                Swal.fire("Berhasil", "Pesanan dibuat, silakan cek instruksi pembayaran.", "success");
-            }
+            setPaymentInstructions(flash.tripay_transaction);
+            setShowPaymentModal(true); // Pastikan modal tetap terbuka untuk menampilkan instruksi
         }
     }, [flash]);
+
+    // Reset instructions when modal is closed manually
+    useEffect(() => {
+        if (!showPaymentModal) {
+            setPaymentInstructions(null);
+        }
+    }, [showPaymentModal]);
 
     // ─── Derived State (Memoized) ─────────────────────────────────────────────
 
@@ -118,10 +122,21 @@ export function usePosLogic({ products, cart_items }) {
             return Swal.fire({ icon: "error", title: "Pembayaran Kurang!" });
         }
 
+        console.log("Submitting payment for method:", data.payment_method);
+
         post(route("pos.checkout"), {
+            preserveScroll: true,
             onSuccess: () => {
-                setShowPaymentModal(false);
+                // Jangan tutup modal jika ini adalah pembayaran non-tunai (Tripay)
+                // karena kita ingin menampilkan instruksi/QR Code di modal yang sama.
+                if (data.payment_method === "cash") {
+                    setShowPaymentModal(false);
+                }
             },
+            onError: (errors) => {
+                console.error("Checkout errors:", errors);
+                Swal.fire("Gagal", "Terjadi kesalahan saat memproses pesanan.", "error");
+            }
         });
     };
 
@@ -150,5 +165,7 @@ export function usePosLogic({ products, cart_items }) {
         removeFromCart,
         handleCheckout,
         submitPayment,
+        paymentInstructions,
+        payment_channels,
     };
 }
