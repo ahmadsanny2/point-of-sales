@@ -28,8 +28,9 @@ export default function PaymentModal({
 }) {
     if (!show) return null;
 
-    const change = Number(tenderedAmount) - total;
-    const isTendered = Number(tenderedAmount) >= total;
+    const displayTotal = paymentInstructions ? (paymentInstructions.amount || total) : total;
+    const change = Number(tenderedAmount) - displayTotal;
+    const isTendered = Number(tenderedAmount) >= displayTotal;
 
     return (
         <div className="flex fixed inset-0 z-50 justify-center items-center p-4">
@@ -73,7 +74,7 @@ export default function PaymentModal({
                             Total Tagihan
                         </p>
                         <div className="text-4xl font-black text-blue-600 dark:text-blue-400">
-                            Rp {total.toLocaleString("id-ID")}
+                            Rp {displayTotal.toLocaleString("id-ID")}
                         </div>
                     </div>
 
