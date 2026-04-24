@@ -20,33 +20,56 @@ export default function ProductGrid({
     setSearchQuery,
     flash,
     addToCart,
+    onOpenHistory,
+    onSearchSubmit,
+    pagination,
+    onPageChange,
 }) {
     return (
         <div className="flex flex-col w-full h-full border-r transition-colors lg:w-2/3 xl:w-3/4 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
             {/* ── Search & Category Bar ── */}
             <div className="p-4 bg-white border-b transition-colors dark:bg-slate-800 border-slate-200 dark:border-slate-700 shrink-0">
-                {/* Search Input */}
-                <div className="relative mb-4">
-                    <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                        <svg
-                            className="w-5 h-5 text-slate-400 dark:text-slate-500"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                        >
-                            <path
-                                fillRule="evenodd"
-                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                                clipRule="evenodd"
-                            />
+                {/* Search Input & History Button */}
+                <div className="flex gap-3 mb-4">
+                    <form 
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            onSearchSubmit(searchQuery);
+                        }}
+                        className="relative flex-1"
+                    >
+                        <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+                            <svg
+                                className="w-5 h-5 text-slate-400 dark:text-slate-500"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                            >
+                                <path
+                                    fillRule="evenodd"
+                                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                    clipRule="evenodd"
+                                />
+                            </svg>
+                        </div>
+                        <input
+                            type="text"
+                            className="block py-3 pr-3 pl-10 w-full rounded-lg border transition-all border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Cari nama produk atau SKU... (Enter)"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </form>
+                    
+                    <button 
+                        onClick={onOpenHistory}
+                        className="p-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors flex items-center gap-2 group shadow-sm"
+                        title="Riwayat Transaksi"
+                    >
+                        <svg className="w-6 h-6 text-slate-400 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                    </div>
-                    <input
-                        type="text"
-                        className="block py-3 pr-3 pl-10 w-full rounded-lg border transition-all border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Cari nama produk atau SKU..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
+                        <span className="hidden sm:inline font-bold text-sm">Riwayat</span>
+                    </button>
                 </div>
 
                 {/* Category Pills */}
@@ -91,7 +114,7 @@ export default function ProductGrid({
                     </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-4 pb-20 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 lg:pb-4">
+                <div className="grid grid-cols-2 gap-4 pb-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 lg:pb-4">
                     {filteredProducts.length > 0 ? (
                         filteredProducts.map((product) => (
                             <ProductCard
@@ -104,6 +127,31 @@ export default function ProductGrid({
                         <EmptyProductState />
                     )}
                 </div>
+
+                {/* Pagination Controls */}
+                {pagination && pagination.last_page > 1 && (
+                    <div className="flex justify-between items-center mt-6 p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                        <button 
+                            disabled={!pagination.prev_page_url}
+                            onClick={() => onPageChange(pagination.prev_page_url)}
+                            className="px-4 py-2 text-sm font-bold rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-30 enabled:hover:bg-slate-50 dark:enabled:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors"
+                        >
+                            Sebelumnya
+                        </button>
+                        
+                        <span className="text-xs font-bold text-slate-500">
+                            Hal {pagination.current_page} dari {pagination.last_page}
+                        </span>
+
+                        <button 
+                            disabled={!pagination.next_page_url}
+                            onClick={() => onPageChange(pagination.next_page_url)}
+                            className="px-4 py-2 text-sm font-bold rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-30 enabled:hover:bg-slate-50 dark:enabled:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors"
+                        >
+                            Berikutnya
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
