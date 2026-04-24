@@ -23,6 +23,7 @@ export default function CartPanel({
     subtotal,
     tax,
     total,
+    tax_percent,
     showMobileCart,
     setShowMobileCart,
     updateQuantity,
@@ -77,6 +78,7 @@ export default function CartPanel({
                     subtotal={subtotal}
                     tax={tax}
                     total={total}
+                    tax_percent={tax_percent}
                     onCheckout={handleCheckout}
                 />
             </div>
@@ -205,7 +207,7 @@ function CartItem({ item, onUpdateQuantity, onRemove }) {
  * Footer keranjang: ringkasan harga, pilihan metode pembayaran,
  * dan tombol checkout.
  */
-function CartFooter({ cart, data, setData, processing, subtotal, tax, total, onCheckout }) {
+function CartFooter({ cart, data, setData, processing, subtotal, tax, total, tax_percent, onCheckout }) {
     const PAYMENT_METHODS = [
         { value: "cash", label: "TUNAI" },
         { value: "qris", label: "QRIS" },
@@ -221,7 +223,7 @@ function CartFooter({ cart, data, setData, processing, subtotal, tax, total, onC
                     <span>Rp {subtotal.toLocaleString("id-ID")}</span>
                 </div>
                 <div className="flex justify-between text-sm text-slate-500 dark:text-slate-400">
-                    <span>PPN (11%)</span>
+                    <span>PPN ({tax_percent}%)</span>
                     <span>Rp {tax.toLocaleString("id-ID")}</span>
                 </div>
                 <div className="flex justify-between pt-2 text-lg font-bold border-t text-slate-800 dark:text-slate-100 border-slate-100 dark:border-slate-700">
