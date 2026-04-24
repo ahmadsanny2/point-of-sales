@@ -93,6 +93,16 @@ export default function Show({ transaction }) {
                                 <div className="space-y-3">
                                     
                                     <div className="flex justify-between items-center text-sm">
+                                        <span className="text-slate-500 dark:text-slate-400">Subtotal</span>
+                                        <span className="font-medium text-slate-700 dark:text-slate-200">Rp {Number(transaction.subtotal).toLocaleString('id-ID')}</span>
+                                    </div>
+
+                                    <div className="flex justify-between items-center text-sm">
+                                        <span className="text-slate-500 dark:text-slate-400">Pajak (PPN)</span>
+                                        <span className="font-medium text-slate-700 dark:text-slate-200">Rp {Number(transaction.tax_amount).toLocaleString('id-ID')}</span>
+                                    </div>
+
+                                    <div className="flex justify-between items-center text-sm">
                                         <span className="text-slate-500 dark:text-slate-400">Metode Pembayaran</span>
                                         <span className="font-bold uppercase text-slate-700 dark:text-slate-200">{transaction.payment_method}</span>
                                     </div>
