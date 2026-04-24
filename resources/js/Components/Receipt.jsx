@@ -94,7 +94,15 @@ const Receipt = React.forwardRef(({ transaction }, ref) => {
             <div className="border-t border-dashed border-black my-2"></div>
 
             <div className="text-[10px] space-y-1">
-                <div className="flex justify-between font-bold">
+                <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span>{Number(transaction.subtotal).toLocaleString('id-ID')}</span>
+                </div>
+                <div className="flex justify-between">
+                    <span>Pajak (PPN)</span>
+                    <span>{Number(transaction.tax_amount).toLocaleString('id-ID')}</span>
+                </div>
+                <div className="flex justify-between font-bold border-t border-black pt-1">
                     <span>TOTAL</span>
                     <span>Rp {Number(transaction.total_amount).toLocaleString('id-ID')}</span>
                 </div>
