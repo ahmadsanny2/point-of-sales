@@ -6,25 +6,65 @@ import Swal from "sweetalert2";
  * Custom hook yang mengelola seluruh business logic pada halaman POS.
  * Memisahkan logika dari tampilan (UI) agar lebih mudah dibaca dan diuji.
  *
- * @param {Array}   products            - Daftar produk dari server
- * @param {Array}   cart_items          - Daftar item keranjang dari server
- * @param {Array}   payment_channels    - Daftar channel pembayaran Tripay
+ * @param {object}  props
  */
-export function usePosLogic({ products, cart_items, payment_channels }) {
+export function usePosLogic({ products, cart_items, payment_channels, tax_percent, recent_transactions }) {
     const { flash } = usePage().props;
 
     // ─── UI State ────────────────────────────────────────────────────────────
     const [activeCategory, setActiveCategory] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [showHistoryModal, setShowHistoryModal] = useState(false);
     const [tenderedAmount, setTenderedAmount] = useState("");
     const [showMobileCart, setShowMobileCart] = useState(false);
     const [paymentInstructions, setPaymentInstructions] = useState(null);
 
+    // Sync categories and search from URL on mount
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('category')) setActiveCategory(params.get('category'));
+        if (params.has('search')) setSearchQuery(params.get('search'));
+    }, []);
+
+    // ─── Backend Filters ───
+    const handleFilterChange = (newCategory, newSearch) => {
+        router.get(route('pos.index'), {
+            category: newCategory,
+            search: newSearch,
+            page: 1
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true
+        });
+    };
+
+    const handleCategoryChange = (catId) => {
+        setActiveCategory(catId);
+        handleFilterChange(catId, searchQuery);
+    };
+
+    const handleSearchSubmit = (query) => {
+        setSearchQuery(query);
+        handleFilterChange(activeCategory, query);
+    };
+
+    const handlePageChange = (pageUrl) => {
+        if (!pageUrl) return;
+        router.get(pageUrl, {
+            category: activeCategory,
+            search: searchQuery
+        }, {
+            preserveState: true,
+            preserveScroll: true
+        });
+    };
+
     // ─── Cart State (Synchronized with props) ────────────────────────────────
     const [cart, setCart] = useState(cart_items || []);
 
-    // Sync state when props change (after server actions)
+    // Sync state when props change
     useEffect(() => {
         setCart(cart_items || []);
     }, [cart_items]);
@@ -36,39 +76,28 @@ export function usePosLogic({ products, cart_items, payment_channels }) {
     });
 
     // ─── Side Effects ─────────────────────────────────────────────────────────
-
-    /** Mendeteksi tripay_transaction dari server flash */
     useEffect(() => {
         if (flash?.tripay_transaction) {
             setPaymentInstructions(flash.tripay_transaction);
-            setShowPaymentModal(true); // Pastikan modal tetap terbuka untuk menampilkan instruksi
+            setShowPaymentModal(true);
         }
     }, [flash]);
 
-    // Reset instructions when modal is closed manually
     useEffect(() => {
         if (!showPaymentModal) {
             setPaymentInstructions(null);
         }
     }, [showPaymentModal]);
 
-    // ─── Derived State (Memoized) ─────────────────────────────────────────────
-
-    const filteredProducts = useMemo(() => {
-        return products.filter((product) => {
-            const matchesCategory = activeCategory === "all" || product.category_id === activeCategory;
-            const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (product.sku && product.sku.toLowerCase().includes(searchQuery.toLowerCase()));
-            return matchesCategory && matchesSearch;
-        });
-    }, [products, activeCategory, searchQuery]);
+    // ─── Derived State ────────────────────────────────────────────────────────
+    const filteredProducts = products.data || [];
+    const productsPagination = products;
 
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const tax = subtotal * 0.11;
+    const tax = subtotal * (tax_percent / 100);
     const total = subtotal + tax;
 
-    // ─── Cart Actions (Server-side persistence) ──────────────────────────────
-
+    // ─── Cart Actions ─────────────────────────────────────────────────────────
     const addToCart = (product) => {
         const existing = cart.find((item) => item.id === product.id);
         if (existing && existing.quantity >= product.stock) {
@@ -77,10 +106,7 @@ export function usePosLogic({ products, cart_items, payment_channels }) {
         }
 
         router.post(route("pos.cart.add"), { product_id: product.id }, {
-            preserveScroll: true,
-            onSuccess: () => {
-                // State will be updated via useEffect when cart_items prop changes
-            }
+            preserveScroll: true
         });
     };
 
@@ -109,7 +135,6 @@ export function usePosLogic({ products, cart_items, payment_channels }) {
     };
 
     // ─── Payment Actions ──────────────────────────────────────────────────────
-
     const handleCheckout = () => {
         if (cart.length === 0) return;
         setData("cart", cart);
@@ -122,19 +147,14 @@ export function usePosLogic({ products, cart_items, payment_channels }) {
             return Swal.fire({ icon: "error", title: "Pembayaran Kurang!" });
         }
 
-        console.log("Submitting payment for method:", data.payment_method);
-
         post(route("pos.checkout"), {
             preserveScroll: true,
             onSuccess: () => {
-                // Jangan tutup modal jika ini adalah pembayaran non-tunai (Tripay)
-                // karena kita ingin menampilkan instruksi/QR Code di modal yang sama.
                 if (data.payment_method === "cash") {
                     setShowPaymentModal(false);
                 }
             },
-            onError: (errors) => {
-                console.error("Checkout errors:", errors);
+            onError: () => {
                 Swal.fire("Gagal", "Terjadi kesalahan saat memproses pesanan.", "error");
             }
         });
@@ -144,9 +164,10 @@ export function usePosLogic({ products, cart_items, payment_channels }) {
         flash,
         cart,
         activeCategory,
-        setActiveCategory,
+        setActiveCategory: handleCategoryChange,
         searchQuery,
         setSearchQuery,
+        handleSearchSubmit,
         showPaymentModal,
         setShowPaymentModal,
         tenderedAmount,
@@ -157,6 +178,8 @@ export function usePosLogic({ products, cart_items, payment_channels }) {
         setData,
         processing,
         filteredProducts,
+        productsPagination,
+        handlePageChange,
         subtotal,
         tax,
         total,
@@ -167,5 +190,19 @@ export function usePosLogic({ products, cart_items, payment_channels }) {
         submitPayment,
         paymentInstructions,
         payment_channels,
+        tax_percent,
+        recent_transactions,
+        showHistoryModal,
+        setShowHistoryModal,
+        openTransactionDetails: (transaction) => {
+            if (transaction.payment_details) {
+                setPaymentInstructions(transaction.payment_details);
+                setData('payment_method', transaction.payment_method);
+                setShowHistoryModal(false);
+                setShowPaymentModal(true);
+            } else {
+                Swal.fire('Info', 'Transaksi ini sudah selesai atau tidak memerlukan instruksi tambahan.', 'info');
+            }
+        }
     };
 }
