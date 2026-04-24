@@ -5,6 +5,7 @@ import { usePosLogic } from "./hooks/usePosLogic";
 import ProductGrid from "./components/ProductGrid";
 import CartPanel from "./components/CartPanel";
 import PaymentModal from "./components/PaymentModal";
+import HistoryModal from "./components/HistoryModal";
 
 /**
  * Halaman utama POS (Kasir Kiosk).
@@ -12,8 +13,8 @@ import PaymentModal from "./components/PaymentModal";
  * Seluruh business logic dikelola oleh `usePosLogic`.
  * Komponen ini hanya bertugas merakit tampilan dari sub-komponen.
  */
-export default function Index({ categories, products, cart_items, payment_channels }) {
-    const pos = usePosLogic({ products, cart_items, payment_channels });
+export default function Index({ categories, products, cart_items, payment_channels, tax_percent, recent_transactions }) {
+    const pos = usePosLogic({ products, cart_items, payment_channels, tax_percent, recent_transactions });
 
     return (
         <PosLayout>
@@ -28,8 +29,12 @@ export default function Index({ categories, products, cart_items, payment_channe
                     setActiveCategory={pos.setActiveCategory}
                     searchQuery={pos.searchQuery}
                     setSearchQuery={pos.setSearchQuery}
+                    onSearchSubmit={pos.handleSearchSubmit}
+                    pagination={pos.productsPagination}
+                    onPageChange={pos.handlePageChange}
                     flash={pos.flash}
                     addToCart={pos.addToCart}
+                    onOpenHistory={() => pos.setShowHistoryModal(true)}
                 />
 
                 {/* ── Kanan: Panel Keranjang (30%) ── */}
@@ -41,6 +46,7 @@ export default function Index({ categories, products, cart_items, payment_channe
                     subtotal={pos.subtotal}
                     tax={pos.tax}
                     total={pos.total}
+                    tax_percent={pos.tax_percent}
                     showMobileCart={pos.showMobileCart}
                     setShowMobileCart={pos.setShowMobileCart}
                     updateQuantity={pos.updateQuantity}
@@ -69,6 +75,13 @@ export default function Index({ categories, products, cart_items, payment_channe
                 onSubmit={pos.submitPayment}
                 paymentInstructions={pos.paymentInstructions}
                 paymentChannels={pos.payment_channels}
+            />
+
+            {/* ── Modal Riwayat ── */}
+            <HistoryModal
+                show={pos.showHistoryModal}
+                onClose={() => pos.setShowHistoryModal(false)}
+                onOpenDetails={pos.openTransactionDetails}
             />
         </PosLayout>
     );
