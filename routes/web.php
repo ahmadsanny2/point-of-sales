@@ -26,6 +26,7 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     // Kiosk POS (Accessible by all auth users like Staff and Admin)
     Route::get('/pos', [PosController::class, 'index'])->name('pos.index');
+    Route::get('/pos/transactions', [PosController::class, 'getTransactions'])->name('pos.transactions');
     Route::post('/pos/checkout', [PosController::class, 'checkout'])->name('pos.checkout');
     Route::post('/pos/payment-callback', [PosController::class, 'handleCallback'])
         ->name('pos.payment-callback')
