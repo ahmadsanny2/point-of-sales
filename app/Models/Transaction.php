@@ -12,9 +12,16 @@ class Transaction extends Model
     protected $fillable = [
         'user_id',
         'invoice_number',
+        'subtotal',
+        'tax_amount',
         'total_amount',
         'payment_method',
         'status',
+        'payment_details',
+    ];
+
+    protected $casts = [
+        'payment_details' => 'array',
     ];
 
     public function items()
