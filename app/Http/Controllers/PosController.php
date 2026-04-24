@@ -13,13 +13,29 @@ use Illuminate\Support\Facades\Auth;
 
 class PosController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $categories = Category::all();
-        $products = Product::where('status', 'active')
-            ->where('stock', '>', 0)
-            ->with('category')
-            ->get();
+        
+        $query = Product::where('status', 'active');
+
+        // Search filter
+        if ($request->search) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('sku', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Category filter
+        if ($request->category && $request->category !== 'all') {
+            $query->where('category_id', $request->category);
+        }
+
+        $products = $query->with('category')
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
 
         $cart = \App\Models\CartItem::where('user_id', Auth::id())
             ->with('product')
@@ -47,12 +63,58 @@ class PosController extends Controller
             }
         });
 
+        $recentTransactions = Transaction::with('items.product')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->take(10)
+            ->get();
+
         return Inertia::render('Pos/Index', [
             'categories' => $categories,
             'products' => $products,
             'cart_items' => $cart,
             'payment_channels' => $channels,
+            'tax_percent' => (float) \App\Models\Setting::get('store.tax_percent', 0),
+            'recent_transactions' => $recentTransactions,
         ]);
+    }
+
+    public function getTransactions(Request $request)
+    {
+        $query = Transaction::with('items.product')
+            ->where('user_id', Auth::id());
+
+        // Filter by Search (Invoice Number)
+        if ($request->search) {
+            $query->where('invoice_number', 'like', '%' . $request->search . '%');
+        }
+
+        // Filter by Status
+        if ($request->status && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by Payment Method
+        if ($request->payment_method && $request->payment_method !== 'all') {
+            if ($request->payment_method === 'qris') {
+                $query->where('payment_method', 'like', 'QRIS%');
+            } elseif ($request->payment_method === 'cash') {
+                $query->where('payment_method', 'cash');
+            } elseif ($request->payment_method === 'card') {
+                // Assuming card methods are VAs or specific card codes in Tripay
+                // For now, let's just match common card/VA patterns if applicable
+                $query->where(function($q) {
+                    $q->where('payment_method', 'like', '%VA%')
+                      ->orWhere('payment_method', 'like', '%CARD%');
+                });
+            } else {
+                $query->where('payment_method', $request->payment_method);
+            }
+        }
+
+        $transactions = $query->latest()->paginate(10);
+
+        return response()->json($transactions);
     }
 
     public function addToCart(Request $request)
@@ -144,13 +206,14 @@ class PosController extends Controller
                     throw new \Exception("Stok untuk produk {$product->name} tidak mencukupi.");
                 }
 
-                $subtotal = $product->price * $item['quantity'];
+                $unitPrice = (int) $product->price;
+                $subtotal = $unitPrice * $item['quantity'];
                 $totalAmount += $subtotal;
 
                 $itemsData[] = [
                     'product_id' => $product->id,
                     'quantity' => $item['quantity'],
-                    'unit_price' => $product->price,
+                    'unit_price' => $unitPrice,
                     'subtotal' => $subtotal,
                 ];
 
@@ -160,9 +223,10 @@ class PosController extends Controller
                 }
             }
 
+            $subtotal = $totalAmount;
             $taxPercent = (float) \App\Models\Setting::get('store.tax_percent', 0);
-            $taxAmount = $totalAmount * ($taxPercent / 100);
-            $grandTotal = $totalAmount + $taxAmount;
+            $taxAmount = round($subtotal * ($taxPercent / 100));
+            $grandTotal = $subtotal + $taxAmount;
 
             $isCash = $validated['payment_method'] === 'cash';
             $prefix = \App\Models\Setting::get('receipt.invoice_prefix', 'INV');
@@ -171,6 +235,8 @@ class PosController extends Controller
             $transaction = Transaction::create([
                 'user_id' => Auth::id(),
                 'invoice_number' => $prefix . '-' . date('Ymd') . '-' . mt_rand(1000, 9999),
+                'subtotal' => $subtotal,
+                'tax_amount' => $taxAmount,
                 'total_amount' => $grandTotal,
                 'payment_method' => $validated['payment_method'],
                 'status' => $isCash ? 'paid' : 'pending',
@@ -201,35 +267,46 @@ class PosController extends Controller
 
             $method = $validated['payment_method'];
 
-            $signature = hash_hmac('sha256', $merchantCode . $transaction->invoice_number . (int)$grandTotal, $privateKey);
-
             $orderItems = [];
-            foreach ($validated['cart'] as $item) {
-                $product = Product::find($item['id']);
+            $sumOrderItems = 0;
+
+            foreach ($itemsData as $item) {
+                $product = Product::find($item['product_id']);
+                $price = (int) $item['unit_price'];
+                $qty = (int) $item['quantity'];
+
                 $orderItems[] = [
-                    'sku' => $product->sku ?? 'PROD-'.$product->id,
-                    'name' => $product->name,
-                    'price' => (int) $product->price,
-                    'quantity' => (int) $item['quantity']
+                    'sku'      => $product->sku ?? 'PROD-' . $product->id,
+                    'name'     => $product->name,
+                    'price'    => $price,
+                    'quantity' => $qty,
                 ];
+                $sumOrderItems += ($price * $qty);
             }
 
             // Add tax as an item if needed for Tripay
             if ($taxAmount > 0) {
+                $taxPrice = (int) $taxAmount;
                 $orderItems[] = [
-                    'sku' => 'TAX',
-                    'name' => 'Pajak ('.$taxPercent.'%)',
-                    'price' => (int) $taxAmount,
-                    'quantity' => 1
+                    'sku'      => 'TAX',
+                    'name'     => 'Pajak (PPN ' . $taxPercent . '%)',
+                    'price'    => $taxPrice,
+                    'quantity' => 1,
                 ];
+                $sumOrderItems += $taxPrice;
             }
+
+            // FORCE total amount to match sum of order items exactly
+            $finalAmount = $sumOrderItems;
+
+            $signature = hash_hmac('sha256', $merchantCode . $transaction->invoice_number . $finalAmount, $privateKey);
 
             $params = [
                 'method'         => $method,
                 'merchant_ref'   => $transaction->invoice_number,
-                'amount'         => (int) $grandTotal,
+                'amount'         => $finalAmount,
                 'customer_name'  => Auth::user()->name,
-                'customer_email' => Auth::user()->email,
+                'customer_email' => Auth::user()->email ?? 'customer@pos.com',
                 'customer_phone' => '081234567890',
                 'order_items'    => $orderItems,
                 'callback_url'   => route('pos.payment-callback'),
@@ -243,6 +320,15 @@ class PosController extends Controller
 
             if ($response->successful()) {
                 $tripayData = $response->json('data');
+                
+                // Save payment details for later retrieval if modal is closed
+                $transaction->update([
+                    'payment_details' => $tripayData
+                ]);
+                
+                // Clear database cart for this user
+                \App\Models\CartItem::where('user_id', Auth::id())->delete();
+                
                 DB::commit();
                 
                 return redirect()->back()->with('tripay_transaction', $tripayData);
