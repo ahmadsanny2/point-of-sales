@@ -18,9 +18,11 @@ class StoreSettingRequest extends FormRequest
             'tagline'     => 'nullable|string|max:255',
             'address'     => 'nullable|string|max:500',
             'phone'       => 'nullable|string|max:20',
-            'currency'    => 'required|string|max:10',
+            'email'       => 'nullable|email|max:100',
             'tax_percent' => 'required|numeric|min:0|max:100',
             'logo'        => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024',
+            'remove_logo' => 'nullable|boolean',
+            'show_logo'   => 'nullable|boolean',
         ];
     }
 }
