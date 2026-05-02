@@ -16,6 +16,7 @@ class LandingPageController extends Controller
     {
         return Inertia::render('Settings/LandingPage', [
             'settings' => $this->settingService->getLandingSettings(),
+            'defaults' => $this->settingService->getDefaults()['landing'],
         ]);
     }
 
