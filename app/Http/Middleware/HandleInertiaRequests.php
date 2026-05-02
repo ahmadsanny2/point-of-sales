@@ -35,9 +35,10 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'appSettings' => [
-                'store'      => \App\Models\Setting::getGroup('store'),
+                'store'      => (new \App\Services\SettingService())->getStoreSettings(),
                 'appearance' => \App\Models\Setting::getGroup('appearance'),
-                'receipt'    => \App\Models\Setting::getGroup('receipt'),
+                'receipt'    => (new \App\Services\SettingService())->getReceiptSettings(),
+                'landing'    => (new \App\Services\SettingService())->getLandingSettings(),
             ],
             'flash' => [
                 'message' => fn () => $request->session()->get('message'),
