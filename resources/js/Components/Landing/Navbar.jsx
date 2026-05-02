@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, usePage } from "@inertiajs/react";
+import ApplicationLogo from "@/Components/ApplicationLogo";
 
 export default function Navbar({ auth }) {
     const [scrolled, setScrolled] = useState(false);
@@ -21,22 +22,16 @@ export default function Navbar({ auth }) {
         >
             <div className="flex items-center justify-between px-6 py-4 mx-auto max-w-7xl">
                 {/* Logo */}
-                <a href="#" className="flex items-center gap-2.5 group">
-                    {receipt.show_logo === '1' && store.logo_path ? (
+                <Link href="/" className="flex items-center gap-2.5 group">
+                    {(store.show_logo === '1' || store.show_logo === true) && (
                         <div className="flex items-center justify-center transition-transform shadow-lg w-9 h-9 overflow-hidden rounded-xl bg-white group-hover:scale-105">
-                            <img src={`/storage/${store.logo_path}`} alt="Logo" className="w-full h-full object-contain" />
-                        </div>
-                    ) : (
-                        <div className="flex items-center justify-center transition-transform shadow-lg w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 group-hover:scale-105">
-                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
+                            <ApplicationLogo className="w-6 h-6 text-violet-600 fill-current" />
                         </div>
                     )}
-                    <span className="text-lg font-bold tracking-tight">
+                    <span className="text-lg font-bold tracking-tight text-white uppercase">
                         {store.name || 'SalePOS'}
                     </span>
-                </a>
+                </Link>
 
                 {/* Desktop Nav Links */}
                 <div className="items-center hidden gap-8 text-sm md:flex text-slate-300">
