@@ -1,17 +1,24 @@
 import { Link, usePage } from '@inertiajs/react';
+import ApplicationLogo from '@/Components/ApplicationLogo';
 
-const Logo = () => (
-    <div className="flex items-center gap-2.5">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
+const Logo = () => {
+    const { appSettings } = usePage().props;
+    const storeName = appSettings?.store?.name || 'SalePOS';
+    const showLogo = appSettings?.store?.show_logo === '1' || appSettings?.store?.show_logo === true;
+    
+    return (
+        <div className="flex items-center gap-2.5">
+            {showLogo && (
+                <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center overflow-hidden shadow-lg">
+                    <ApplicationLogo className="w-6 h-6 text-violet-600 fill-current" />
+                </div>
+            )}
+            <span className="text-lg font-bold text-white uppercase">
+                {storeName}
+            </span>
         </div>
-        <span className="text-lg font-bold">
-            Sale<span className="text-violet-400">POS</span>
-        </span>
-    </div>
-);
+    );
+};
 
 export default function LandingFooter({ auth }) {
     const { appSettings } = usePage().props;
@@ -26,7 +33,7 @@ export default function LandingFooter({ auth }) {
                             <Logo />
                         </div>
                         <p className="text-slate-500 text-sm leading-relaxed max-w-xs">
-                            Sistem point-of-sale modern yang membantu bisnis Indonesia tumbuh lebih cepat dan efisien.
+                            {landing.footer_description || 'Sistem point-of-sale modern yang membantu bisnis Indonesia tumbuh lebih cepat dan efisien.'}
                         </p>
                     </div>
 
