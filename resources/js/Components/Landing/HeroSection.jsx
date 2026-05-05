@@ -61,7 +61,7 @@ export default function HeroSection({ auth }) {
                 {/* Badge */}
                 <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-1.5 mb-8 text-sm text-violet-300">
                     <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                    Sistem POS Terpercaya #1 di Indonesia
+                    {landing.hero_badge || 'Sistem POS Terpercaya #1 di Indonesia'}
                 </div>
 
                 {/* Headline */}
@@ -94,7 +94,7 @@ export default function HeroSection({ auth }) {
                                 href={route("register")}
                                 className="px-8 py-4 text-lg font-bold text-white transition-all duration-300 shadow-2xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 rounded-2xl shadow-violet-500/40 hover:-translate-y-1 hover:shadow-violet-500/60"
                             >
-                                {landing.cta_text || 'Mulai Gratis — Sekarang'}
+                                {landing.hero_cta_text || 'Mulai Gratis — Sekarang'}
                             </Link>
                             <Link
                                 href={route("login")}
