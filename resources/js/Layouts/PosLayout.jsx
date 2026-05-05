@@ -4,7 +4,9 @@ import Dropdown from '@/Components/Dropdown';
 import useDarkMode from '@/Hooks/useDarkMode';
 
 export default function PosLayout({ children }) {
-    const user = usePage().props.auth.user;
+    const { auth, appSettings } = usePage().props;
+    const user = auth.user;
+    const storeName = appSettings?.store?.name || 'POS KASIR';
     const [isDark, toggleTheme] = useDarkMode();
 
     return (
@@ -14,7 +16,7 @@ export default function PosLayout({ children }) {
                 <div className="flex gap-4 items-center">
                     <Link href="/" className="flex gap-2 items-center">
                         <ApplicationLogo className="block w-auto h-8 text-blue-600 fill-current dark:text-blue-500" />
-                        <span className="text-xl font-bold tracking-tight transition-colors text-slate-800 dark:text-white">KASIR POS</span>
+                        <span className="text-xl font-bold tracking-tight transition-colors text-slate-800 dark:text-white uppercase">{storeName}</span>
                     </Link>
                     
                     {user.role === 'admin' && (
