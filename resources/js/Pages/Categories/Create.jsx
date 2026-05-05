@@ -15,7 +15,7 @@ export default function Create() {
         <AuthenticatedLayout header="Tambah Kategori">
             <Head title="Tambah Kategori" />
 
-            <div className="max-w-xl mx-auto bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden transition-colors">
+            <div className="max-w-3xl bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden transition-colors">
                 <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center bg-slate-50 dark:bg-slate-900/50 transition-colors">
                     <Link href={route('categories.index')} className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 mr-4 transition-colors">
                         &larr; Kembali
