@@ -1,3 +1,5 @@
+import { usePage } from "@inertiajs/react";
+
 const STEPS = [
     {
         step: '01',
@@ -17,12 +19,15 @@ const STEPS = [
 ];
 
 export default function HowItWorksSection() {
+    const { appSettings } = usePage().props;
+    const landing = appSettings?.landing || {};
+
     return (
         <section className="py-28 px-6">
             <div className="max-w-5xl mx-auto">
                 <div className="text-center mb-16">
-                    <span className="text-violet-400 font-semibold text-sm uppercase tracking-widest">Cara Kerja</span>
-                    <h2 className="text-4xl md:text-5xl font-black mt-3 mb-4">Setup Dalam 3 Langkah Mudah</h2>
+                    <span className="text-violet-400 font-semibold text-sm uppercase tracking-widest">{landing.how_it_works_title || 'Cara Kerja'}</span>
+                    <h2 className="text-4xl md:text-5xl font-black mt-3 mb-4">{landing.how_it_works_subtitle || 'Setup Dalam 3 Langkah Mudah'}</h2>
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-8 relative">
