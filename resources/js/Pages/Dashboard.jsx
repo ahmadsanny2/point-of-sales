@@ -7,7 +7,7 @@ export default function Dashboard({ stats, latestTransactions }) {
         <AuthenticatedLayout header="Dashboard Utama">
             <Head title="Dashboard" />
 
-            <div className="py-4">
+            <div className="space-y-6">
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                     {/* Stat Card 1 */}
@@ -56,7 +56,7 @@ export default function Dashboard({ stats, latestTransactions }) {
                 <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden transition-colors">
                     <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center transition-colors">
                         <h3 className="text-lg font-medium text-slate-800 dark:text-slate-100 transition-colors">Aktivitas Transaksi Terbaru</h3>
-                        <Link href={route('transactions.index')} className="text-blue-600 dark:text-blue-400 text-sm font-medium hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
+                        <Link href={route('transactions.index')} className="text-primary text-sm font-medium hover:opacity-80 transition-opacity">
                             Lihat Semua Laporan &rarr;
                         </Link>
                     </div>
@@ -80,7 +80,7 @@ export default function Dashboard({ stats, latestTransactions }) {
                                                 {dayjs(trx.created_at).format('DD MMM, HH:mm')}
                                             </td>
                                             <td className="px-6 py-4 font-mono font-bold text-slate-700 dark:text-slate-300">
-                                                <Link href={route('transactions.show', trx.id)} className="hover:text-blue-600 dark:hover:text-blue-400 underline decoration-slate-300 dark:decoration-slate-600 underline-offset-4 transition-colors">
+                                                <Link href={route('transactions.show', trx.id)} className="hover:text-primary underline decoration-slate-300 dark:decoration-slate-600 underline-offset-4 transition-colors">
                                                     {trx.invoice_number}
                                                 </Link>
                                             </td>
