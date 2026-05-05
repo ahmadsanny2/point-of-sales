@@ -73,18 +73,23 @@ const PLANS = [
     },
 ];
 
+import { usePage } from "@inertiajs/react";
+
 // ── Section ────────────────────────────────────────────────────────────────────
 export default function PricingSection() {
+    const { appSettings } = usePage().props;
+    const landing = appSettings?.landing || {};
+
     return (
         <section id="pricing" className="py-28 px-6 relative">
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-950/20 to-transparent pointer-events-none" />
 
             <div className="max-w-6xl mx-auto relative">
                 <div className="text-center mb-16">
-                    <span className="text-violet-400 font-semibold text-sm uppercase tracking-widest">Pilihan Paket</span>
-                    <h2 className="text-4xl md:text-5xl font-black mt-3 mb-4">Harga Transparan, Tanpa Kejutan</h2>
+                    <span className="text-violet-400 font-semibold text-sm uppercase tracking-widest">{landing.pricing_title || 'Harga Terjangkau'}</span>
+                    <h2 className="text-4xl md:text-5xl font-black mt-3 mb-4">{landing.pricing_subtitle || 'Harga Transparan, Tanpa Kejutan'}</h2>
                     <p className="text-slate-400 max-w-xl mx-auto">
-                        Pilih paket yang sesuai skala bisnis Anda. Upgrade atau downgrade kapan saja.
+                        {landing.pricing_description || 'Tanpa biaya tersembunyi. Bayar sesuai kebutuhan bisnis Anda.'}
                     </p>
                 </div>
 
