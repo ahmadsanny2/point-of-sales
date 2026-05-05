@@ -1,3 +1,5 @@
+import { usePage } from '@inertiajs/react';
+
 const TESTIMONIALS = [
     {
         name: 'Budi Santoso',
@@ -23,12 +25,19 @@ const TESTIMONIALS = [
 ];
 
 export default function TestimonialsSection() {
+    const { appSettings } = usePage().props;
+    const landing = appSettings.landing || {};
+
     return (
         <section id="testimonials" className="py-28 px-6">
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-16">
-                    <span className="text-violet-400 font-semibold text-sm uppercase tracking-widest">Kata Mereka</span>
-                    <h2 className="text-4xl md:text-5xl font-black mt-3 mb-4">Dipercaya Ribuan Pebisnis</h2>
+                    <span className="text-violet-400 font-semibold text-sm uppercase tracking-widest">
+                        {landing.testimonials_title || 'Kata Mereka'}
+                    </span>
+                    <h2 className="text-4xl md:text-5xl font-black mt-3 mb-4">
+                        {landing.testimonials_subtitle || 'Dipercaya Ribuan Pebisnis'}
+                    </h2>
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-6">
