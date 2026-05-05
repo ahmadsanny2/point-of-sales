@@ -6,7 +6,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\Settings\StoreSettingController;
-use App\Http\Controllers\Settings\AppearanceController;
+
 use App\Http\Controllers\Settings\LandingPageController;
 use App\Http\Controllers\Settings\ReceiptSettingController;
 use App\Http\Controllers\Settings\UserManagementController;
@@ -63,9 +63,7 @@ Route::middleware('auth')->group(function () {
             Route::get('store', [StoreSettingController::class, 'index'])->name('store');
             Route::post('store', [StoreSettingController::class, 'update'])->name('store.update');
 
-            // Pengaturan Tampilan
-            Route::get('appearance', [AppearanceController::class, 'index'])->name('appearance');
-            Route::post('appearance', [AppearanceController::class, 'update'])->name('appearance.update');
+
 
             // Pengaturan Landing Page
             Route::get('landing', [LandingPageController::class, 'index'])->name('landing');
