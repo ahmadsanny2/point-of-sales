@@ -36,13 +36,12 @@ export default function UserIndex({ auth, users }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Manajemen Pengguna</h2>}
+            header="Manajemen Pengguna"
         >
             <Head title="Manajemen Pengguna" />
 
-            <div className="py-8">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-                    <div className="px-4 sm:px-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-6">
+                <div className="px-4 sm:px-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
                             <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-100">Manajemen Pengguna</h3>
                             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -125,7 +124,6 @@ export default function UserIndex({ auth, users }) {
                                 </tbody>
                             </table>
                         </div>
-                    </div>
                 </div>
             </div>
         </AuthenticatedLayout>
