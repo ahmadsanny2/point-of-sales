@@ -18,6 +18,7 @@ class ReceiptSettingRequest extends FormRequest
             'receipt_footer' => 'required|string|max:500',
             'invoice_prefix' => 'required|string|max:10',
             'show_logo'      => 'required|boolean',
+            'paper_size'     => 'required|string|in:thermal,a4,a5',
         ];
     }
 }
