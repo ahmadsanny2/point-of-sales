@@ -16,6 +16,7 @@ class ReceiptSettingController extends Controller
     {
         return Inertia::render('Settings/Receipt', [
             'settings' => $this->settingService->getReceiptSettings(),
+            'defaults' => $this->settingService->getDefaults()['receipt'],
         ]);
     }
 
