@@ -84,16 +84,21 @@ const FEATURES = [
     },
 ];
 
+import { usePage } from "@inertiajs/react";
+
 // ── Section ────────────────────────────────────────────────────────────────────
 export default function FeaturesSection() {
+    const { appSettings } = usePage().props;
+    const landing = appSettings?.landing || {};
+
     return (
         <section id="features" className="py-28 px-6 relative">
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-16">
-                    <span className="text-violet-400 font-semibold text-sm uppercase tracking-widest">Fitur Unggulan</span>
-                    <h2 className="text-4xl md:text-5xl font-black mt-3 mb-4">Semua yang Bisnis Anda Butuhkan</h2>
+                    <span className="text-violet-400 font-semibold text-sm uppercase tracking-widest">{landing.features_title || 'Fitur Unggulan'}</span>
+                    <h2 className="text-4xl md:text-5xl font-black mt-3 mb-4">{landing.features_subtitle || 'Semua yang Bisnis Anda Butuhkan'}</h2>
                     <p className="text-slate-400 max-w-xl mx-auto">
-                        Dirancang untuk kemudahan operasional sehari-hari, dari transaksi hingga laporan keuangan lengkap.
+                        {landing.features_description || 'Dirancang untuk kemudahan operasional sehari-hari, dari transaksi hingga laporan keuangan lengkap.'}
                     </p>
                 </div>
 
