@@ -13,8 +13,12 @@ export default {
 
     theme: {
         extend: {
+            colors: {
+                primary: '#2563EB',
+                accent: '#38BDF8',
+            },
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Inter', ...defaultTheme.fontFamily.sans],
             },
         },
     },
