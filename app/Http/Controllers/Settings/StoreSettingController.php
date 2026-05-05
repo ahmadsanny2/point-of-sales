@@ -16,6 +16,7 @@ class StoreSettingController extends Controller
     {
         return Inertia::render('Settings/Store', [
             'settings' => $this->settingService->getStoreSettings(),
+            'defaults' => $this->settingService->getDefaults()['store'],
         ]);
     }
 
