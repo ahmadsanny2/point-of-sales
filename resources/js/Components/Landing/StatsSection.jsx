@@ -1,4 +1,5 @@
 import AnimatedCounter from '@/Components/Landing/AnimatedCounter';
+import { usePage } from "@inertiajs/react";
 
 const STATS = [
     { value: 500, suffix: '+', label: 'Bisnis Aktif' },
@@ -8,10 +9,17 @@ const STATS = [
 ];
 
 export default function StatsSection() {
+    const { appSettings } = usePage().props;
+    const landing = appSettings?.landing || {};
+
     return (
         <section id="stats" className="py-24 px-6 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-violet-900/30 via-purple-900/20 to-violet-900/30" />
             <div className="absolute inset-0 border-y border-white/5" />
+
+            <div className="relative max-w-5xl mx-auto text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-black text-white">{landing.stats_title || 'Membantu bisnis berkembang'}</h2>
+            </div>
 
             <div className="relative max-w-5xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-10 text-center">
                 {STATS.map((stat) => (
