@@ -333,7 +333,18 @@ class PosController extends Controller
                 
                 return redirect()->back()->with('tripay_transaction', $tripayData);
             } else {
-                throw new \Exception('Gagal memproses Tripay: ' . json_encode($response->json()));
+                $errorMsg = $response->json('message') ?? 'Terjadi kesalahan saat memproses pembayaran ke Tripay.';
+                
+                // Terjemahkan error umum dari Tripay
+                if (str_contains($errorMsg, 'Maximum payment amount is')) {
+                    $amount = str_replace('Maximum payment amount is ', '', $errorMsg);
+                    $errorMsg = "Batas maksimal pembayaran adalah $amount";
+                } elseif (str_contains($errorMsg, 'Minimum payment amount is')) {
+                    $amount = str_replace('Minimum payment amount is ', '', $errorMsg);
+                    $errorMsg = "Batas minimal pembayaran adalah $amount";
+                }
+                
+                throw new \Exception($errorMsg);
             }
 
         } catch (\Exception $e) {
