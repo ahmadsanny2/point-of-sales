@@ -4,31 +4,24 @@ import SettingsTabs from '../Partials/SettingsTabs';
 import PrimaryButton from '@/Components/PrimaryButton';
 import DangerButton from '@/Components/DangerButton';
 import dayjs from 'dayjs';
-import Swal from 'sweetalert2';
+import { notify } from '@/Utils/SweetAlert';
 
 export default function UserIndex({ auth, users }) {
     const { delete: destroy } = useForm();
 
     const handleDelete = (user) => {
         if (user.id === auth.user.id) {
-            Swal.fire('Error', 'Anda tidak bisa menghapus akun sendiri!', 'error');
+            notify.error('Anda tidak bisa menghapus akun sendiri!');
             return;
         }
 
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: `Akun ${user.name} akan dihapus permanen!`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#EF4444',
-            cancelButtonColor: '#6B7280',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
+        notify.confirm(
+            'Hapus User?',
+            `Akun ${user.name} akan dihapus permanen!`,
+            'Ya, Hapus!'
+        ).then((result) => {
             if (result.isConfirmed) {
-                destroy(route('settings.users.destroy', user.id), {
-                    onSuccess: () => Swal.fire('Berhasil!', 'User telah dihapus.', 'success'),
-                });
+                destroy(route('settings.users.destroy', user.id));
             }
         });
     };
