@@ -102,18 +102,6 @@ export default function ProductGrid({
 
             {/* ── Product Grid ── */}
             <div className="overflow-y-auto flex-1 p-4">
-                {/* Flash Messages */}
-                {flash?.message && (
-                    <div className="px-4 py-3 mb-4 text-green-700 bg-green-100 rounded-lg border border-green-200 shadow-sm dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
-                        {flash.message}
-                    </div>
-                )}
-                {flash?.error && (
-                    <div className="px-4 py-3 mb-4 text-red-700 bg-red-100 rounded-lg border border-red-200 shadow-sm dark:bg-red-900/30 dark:text-red-400 dark:border-red-800">
-                        {flash.error}
-                    </div>
-                )}
-
                 <div className="grid grid-cols-2 gap-4 pb-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 lg:pb-4">
                     {filteredProducts.length > 0 ? (
                         filteredProducts.map((product) => (
