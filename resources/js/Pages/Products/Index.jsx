@@ -1,19 +1,13 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, usePage, router } from '@inertiajs/react';
-import Swal from 'sweetalert2';
+import { Head, Link, router } from '@inertiajs/react';
+import { notify } from '@/Utils/SweetAlert';
 
 export default function Index({ products }) {
-    const { flash } = usePage().props;
 
     return (
         <AuthenticatedLayout header="Manajemen Produk">
             <Head title="Produk" />
 
-            {flash?.message && (
-                <div className="mb-4 bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded relative" role="alert">
-                    <span className="block sm:inline">{flash.message}</span>
-                </div>
-            )}
 
             <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden transition-colors">
                 <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50 transition-colors">
@@ -78,16 +72,11 @@ export default function Index({ products }) {
                                                 type="button"
                                                 className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors"
                                                 onClick={() => {
-                                                    Swal.fire({
-                                                        title: 'Hapus Produk?',
-                                                        text: "Data yang dihapus tidak dapat dikembalikan!",
-                                                        icon: 'warning',
-                                                        showCancelButton: true,
-                                                        confirmButtonColor: '#d33',
-                                                        cancelButtonColor: '#3085d6',
-                                                        confirmButtonText: 'Ya, Hapus!',
-                                                        cancelButtonText: 'Batal'
-                                                    }).then((result) => {
+                                                    notify.confirm(
+                                                        'Hapus Produk?',
+                                                        'Data yang dihapus tidak dapat dikembalikan!',
+                                                        'Ya, Hapus!'
+                                                    ).then((result) => {
                                                         if (result.isConfirmed) {
                                                             router.delete(route('products.destroy', product.id));
                                                         }
