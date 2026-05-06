@@ -5,6 +5,7 @@ import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
 import { Link, usePage } from "@inertiajs/react";
 import { useState, useEffect } from "react";
 import useDarkMode from "@/Hooks/useDarkMode";
+import FlashMessages from "@/Components/FlashMessages";
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
@@ -19,6 +20,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
     return (
         <div className="flex min-h-screen transition-colors duration-200 bg-slate-50 dark:bg-slate-900">
+            <FlashMessages />
 
             {user.role === "admin" && (
                 <>

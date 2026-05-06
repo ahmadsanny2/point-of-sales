@@ -1,6 +1,7 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import { Link, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
+import FlashMessages from '@/Components/FlashMessages';
 
 export default function GuestLayout({ children }) {
     const { appSettings } = usePage().props;
@@ -8,6 +9,7 @@ export default function GuestLayout({ children }) {
 
     return (
         <div className="flex flex-col items-center pt-6 min-h-screen bg-gray-100 sm:justify-center sm:pt-0 dark:bg-gray-900">
+            <FlashMessages />
             <div>
                 <Link href="/" className="flex flex-col items-center">
                     <ApplicationLogo className="w-20 h-20 text-blue-600 fill-current mb-2" />

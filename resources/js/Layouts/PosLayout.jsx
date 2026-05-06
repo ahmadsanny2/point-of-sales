@@ -2,6 +2,7 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import { Link, usePage } from '@inertiajs/react';
 import Dropdown from '@/Components/Dropdown';
 import useDarkMode from '@/Hooks/useDarkMode';
+import FlashMessages from '@/Components/FlashMessages';
 
 export default function PosLayout({ children }) {
     const { auth, appSettings } = usePage().props;
@@ -11,6 +12,7 @@ export default function PosLayout({ children }) {
 
     return (
         <div className="flex overflow-hidden flex-col h-screen min-h-screen transition-colors duration-200 bg-slate-100 dark:bg-slate-900">
+            <FlashMessages />
             {/* Top Navigation / Header for Kiosk */}
             <header className="flex relative z-30 justify-between items-center px-4 h-16 bg-white border-b shadow-sm transition-colors duration-200 shrink-0 dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                 <div className="flex gap-4 items-center">
