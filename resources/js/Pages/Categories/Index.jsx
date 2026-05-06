@@ -1,25 +1,13 @@
+import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, usePage, router } from '@inertiajs/react';
-import Swal from 'sweetalert2';
+import { notify } from '@/Utils/SweetAlert';
 
 export default function Index({ categories }) {
-    const { flash } = usePage().props;
 
     return (
         <AuthenticatedLayout header="Kategori Produk">
             <Head title="Kategori" />
 
-            {flash?.message && (
-                <div className="mb-4 bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded relative" role="alert">
-                    <span className="block sm:inline">{flash.message}</span>
-                </div>
-            )}
-
-            {flash?.error && (
-                <div className="mb-4 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded relative" role="alert">
-                    <span className="block sm:inline">{flash.error}</span>
-                </div>
-            )}
 
             <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden transition-colors">
                 <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50 transition-colors">
@@ -51,16 +39,11 @@ export default function Index({ categories }) {
                                             <Link href={route('categories.edit', category.id)} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mr-3 transition-colors">Edit</Link>
                                             <button 
                                                 onClick={() => {
-                                                    Swal.fire({
-                                                        title: 'Hapus Kategori?',
-                                                        text: "Kategori yang dihapus tidak dapat dipulihkan!",
-                                                        icon: 'warning',
-                                                        showCancelButton: true,
-                                                        confirmButtonColor: '#d33',
-                                                        cancelButtonColor: '#3085d6',
-                                                        confirmButtonText: 'Ya, Hapus!',
-                                                        cancelButtonText: 'Batal'
-                                                    }).then((result) => {
+                                                    notify.confirm(
+                                                        'Hapus Kategori?',
+                                                        'Kategori yang dihapus tidak dapat dipulihkan!',
+                                                        'Ya, Hapus!'
+                                                    ).then((result) => {
                                                         if (result.isConfirmed) {
                                                             router.delete(route('categories.destroy', category.id));
                                                         }
