@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useForm, usePage, router } from "@inertiajs/react";
-import Swal from "sweetalert2";
+import { notify } from "@/Utils/SweetAlert";
 
 /**
  * Custom hook yang mengelola seluruh business logic pada halaman POS.
@@ -101,7 +101,7 @@ export function usePosLogic({ products, cart_items, payment_channels, tax_percen
     const addToCart = (product) => {
         const existing = cart.find((item) => item.id === product.id);
         if (existing && existing.quantity >= product.stock) {
-            Swal.fire({ icon: "warning", title: "Stok Terbatas!" });
+            notify.warning("Stok Terbatas!");
             return;
         }
 
@@ -117,7 +117,7 @@ export function usePosLogic({ products, cart_items, payment_channels, tax_percen
         const newQuantity = item.quantity + delta;
         if (newQuantity < 1) return;
         if (newQuantity > item.stock) {
-            Swal.fire({ icon: "warning", title: "Stok Terbatas!" });
+            notify.warning("Stok Terbatas!");
             return;
         }
 
@@ -144,7 +144,7 @@ export function usePosLogic({ products, cart_items, payment_channels, tax_percen
 
     const submitPayment = () => {
         if (data.payment_method === "cash" && Number(tenderedAmount) < total) {
-            return Swal.fire({ icon: "error", title: "Pembayaran Kurang!" });
+            return notify.error("Pembayaran Kurang!");
         }
 
         post(route("pos.checkout"), {
@@ -155,7 +155,7 @@ export function usePosLogic({ products, cart_items, payment_channels, tax_percen
                 }
             },
             onError: () => {
-                Swal.fire("Gagal", "Terjadi kesalahan saat memproses pesanan.", "error");
+                notify.error("Terjadi kesalahan saat memproses pesanan.");
             }
         });
     };
@@ -201,7 +201,7 @@ export function usePosLogic({ products, cart_items, payment_channels, tax_percen
                 setShowHistoryModal(false);
                 setShowPaymentModal(true);
             } else {
-                Swal.fire('Info', 'Transaksi ini sudah selesai atau tidak memerlukan instruksi tambahan.', 'info');
+                notify.info('Transaksi ini sudah selesai atau tidak memerlukan instruksi tambahan.');
             }
         }
     };
