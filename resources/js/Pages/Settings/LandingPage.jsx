@@ -425,16 +425,6 @@ export default function Landing({ auth, settings, defaults }) {
                             <ResetButton onClick={() => setIsResetModalOpen(true)} />
 
                             <div className="flex gap-4 items-center">
-                                <Transition
-                                    show={recentlySuccessful}
-                                    enter="transition ease-in-out"
-                                    enterFrom="opacity-0"
-                                    leave="transition ease-in-out"
-                                    leaveTo="opacity-0"
-                                >
-                                    <p className="text-sm font-medium text-green-600 dark:text-green-400">Berhasil disimpan.</p>
-                                </Transition>
-
                                 <PrimaryButton 
                                     disabled={processing}
                                     className="px-6 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
